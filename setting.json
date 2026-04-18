@@ -1,0 +1,19 @@
+{
+  "changeLog": [
+    {
+      "version":"1.0",
+      "date":"",
+      "detail":"サイト公開"
+    }
+  ],
+  "setting": {
+    "process": "calc-evalue",
+    "unitName": "",
+    "options": {
+      "autoSuccess": true,
+      "preRoll": true,
+      "altRoll": true,
+      "actLoss": true
+    }
+  }
+}

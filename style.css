@@ -1,0 +1,325 @@
+@layer base, component, state;
+
+:root {
+  --blue: #326cc2;
+  --light-blue: #a3b7e0;
+  --offwhite: #fafafa;
+  accent-color: var(--blue);
+}
+
+@layer base {
+  body {
+    margin:0;
+    font-family: var(--basic-font);
+  }
+  
+  #root {
+    background-color: #fafafa;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+  }
+  
+  h1 {
+    text-align: center;
+    user-select: none;
+    font-weight: 100;
+  }
+
+  input[type=text],input[type=number]{field-sizing: content;}
+
+  footer {
+    color: gray;
+    background-color: #eee;
+    font-size: 0.75rem;
+    font-weight: 400;
+    padding: 1rem 1.5rem;
+    
+    h2 {
+      font-weight: 600;
+      font-size: larger;
+      margin-block: 0.25rem;
+    }
+    
+    ul {
+      padding-inline-start: 3ch;
+      margin-block: 0;
+      li {margin-block: 0.25rem;}
+    }
+  
+    table {
+      border-collapse: collapse;
+      font-size: small;
+      letter-spacing: 0.5px;
+      margin-block-start: 0.5rem;
+      width: 55ch;
+  
+      tr {
+        vertical-align: baseline;
+        border-block: 1px solid #aaa;
+      }
+  
+      th,td {
+        padding: 0.25rem;
+        font-weight: unset;
+        text-align: left;
+        tbody & {padding-block-start: 0.5rem;}
+        &:first-child {width: 20%}
+        &:nth-child(2){width: 20%}
+      }
+    }
+  }
+}
+
+@layer state {
+  .red {
+    color: #ed1212;
+    font-weight: 500;
+  }
+}
+
+@layer base {
+  .mini-card {
+    --main-color: var(--blue);
+  }
+
+  .toggle-button {
+    --radius: 0.5rem;
+    --padding: 1px;
+    --color: var(--blue);
+  }
+
+  .icon {
+    --size: 1.5rem;
+    --line-radius: 2px;
+  }
+
+  button.icon-frame {
+    color: var(--light-blue);
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    /* margin-block-start: 1rem; */
+    padding: 0.5rem;
+    &:hover {border-color: var(--light-blue);}
+    &:active {
+      color: var(--offwhite);
+      background-color: var(--light-blue);
+    }
+  }
+
+  .tab-ribbon {
+    color: white;
+    background-color: var(--blue);
+    height: 2.5rem;
+    
+    display: flex;
+    padding-inline: 2.5rem 1rem;
+    padding-block: 0.5rem 0;
+    
+    label {
+      border: 1px solid transparent;
+      border-radius: 0.75rem 0.75rem 0 0;
+      align-content: center;
+      padding: 0.375rem 1rem;
+      min-width: 3rem;
+      text-align: center;
+    }
+    label:has(:checked) {
+      color: var(--blue);
+      background-color: var(--offwhite);
+      font-weight: 600;
+    }
+    label:not(:has(:checked)):hover {
+      background-color: rgb(0 0 0 / 0.2);
+    }
+    input[type=radio] {display: none;}
+  }
+
+  .footer-content {
+    width: max-content;
+    padding-block-end: 0.75rem;
+    border-block-end: 1px solid #aaa;
+    display: flex;
+    justify-self: center;
+    gap:3rem;
+  }
+}
+
+
+@layer component {
+  .main-content {
+    flex: 1;
+  }
+
+  .sidemenu {
+    padding: 1rem 1rem;
+    border-inline-end: 1px solid var(--light-blue);
+    box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+  
+    position: sticky;
+    top: 0;
+    width: 16rem;
+
+    button.round {
+      width: 75%;
+      white-space: nowrap;
+    }
+
+    > :last-child {
+      flex-grow: 1;
+      margin-block-end: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+  }
+
+  .round {
+    color: var(--blue);
+    background-color: var(--offwhite);
+    border: 1px solid var(--light-blue);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    height: 2.5rem;
+    min-width: fit-content;
+    border-radius: 2.5rem;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:active {
+      color: white;
+      background-color: var(--blue);
+      border-color: white;
+    }
+
+    &.blue {
+      color: white;
+      background-color: var(--blue);
+      border-color: white;
+    }
+  
+    &.blue:active {
+      color: var(--blue);
+      background-color: var(--offwhite);
+      border-color: var(--light-blue);
+    }
+  }
+  
+  .link {
+    color: var(--blue);
+    background-color: transparent;
+    border: none;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  input.init-insanity {
+    color: darkslategray;
+    background-color: transparent;
+    display: block;
+    height: stretch;
+    width: stretch;
+    min-width: 4ch;
+    font-family: unset;
+    font-size: larger;
+    text-align: center;
+    border: none;
+  }
+  .init-insanity::-webkit-outer-spin-button,
+  .init-insanity::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  td.center {text-align: center;}
+  td.pad-inline {padding-inline: 0.5em;}
+
+  .sanc-table {
+    border-collapse: collapse;
+
+    td {padding-block: 0.25rem;}
+    th {
+      color: var(--offwhite);
+      background-color: var(--blue);
+      border: 1px solid var(--offwhite);
+      padding: 0.25rem 0.5rem;
+    }
+    th.thin {
+      font-size: calc(1em - 2px);
+      font-weight: 300;
+      text-align: left;
+    }
+    tr:first-child th:first-child {border-start-start-radius: 10px;}
+    tr:first-child th:last-child {border-start-end-radius: 10px;}
+
+    select, input[type=text], input[type=number] {
+      height: 1.5rem;
+      box-sizing: border-box;
+      td > & {width: stretch;}
+    }
+    .short-input {
+      min-width: 5ch;
+    }
+    .long-input {
+      min-width: 16ch;
+    }
+  }
+
+  .has-border td {
+    border: 1px solid lightgray;
+    text-align: center;
+  }
+
+  .cell-wrap {
+    display: flex;
+    width: stretch;
+    height: stretch;
+    gap: 4px;
+    >input,
+    >select
+    {flex-grow: 1;}
+  }
+
+
+  .button-tag {
+    --color: gray;
+    --line-color: hsl(from var(--color) h s 35);
+    --fill-color:  hsl(from var(--color) h s 50);
+    
+    color: var(--color);
+    background-color: transparent;
+    border: 1px solid var(--color);
+    
+    font-size: calc(1em - 2px);
+    font-weight: 400;
+    align-content: center;
+    white-space: nowrap;
+    
+    border-radius: 2px;
+    padding: 1px 4px;
+  
+    &:has(:checked) {
+      color: white;
+      background-color: var(--fill-color);
+      border-color: var(--line-color);
+    }
+    input[type=checkbox] {display: none;}
+  }
+}
+
