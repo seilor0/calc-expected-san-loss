@@ -24,7 +24,7 @@ const rootApp = createApp({
       }
     });
 
-    const initInsanity = ref(50);
+    const initInsanity = ref(0);
 
     const unitDataMap = ref(new Map());
     const unitData = computed(() => unitDataMap.value.get(setting.value.unitName) ?? {skill:new Map([])});
