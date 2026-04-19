@@ -26,8 +26,8 @@ const rootApp = createApp({
 
     const initInsanity = ref(0);
 
-    const unitDataMap = ref(new Map());
-    const unitData = computed(() => unitDataMap.value.get(setting.value.unitName) ?? {skill:new Map([])});
+    const unitDataDic = ref({});
+    const unitData = computed(() => unitDataDic.value[setting.value.unitName] ?? {skill:{}});
     watch(unitData, ()=>{if ('san' in unitData.value) initInsanity.value = unitData.value.san;});
 
     class SancData {
@@ -82,7 +82,7 @@ const rootApp = createApp({
           const adjustment = sancData.preRoll.adjustment;
           preRollRate = sancData.preRoll.skill==='else' ? 
             (parseInt(adjustment) || 0) : 
-            applyAdjustment(unitData.value.skill.get(sancData.preRoll.skill), adjustment);
+            applyAdjustment(unitData.value.skill[sancData.preRoll.skill], adjustment);
           preRollRate = clamp(preRollRate, 0, 100);
         }
 
@@ -92,7 +92,7 @@ const rootApp = createApp({
           const adjustment = sancData.altRoll.adjustment;
           altRollRate = sancData.altRoll.skill==='else' ?
             (parseInt(adjustment) || 0) : 
-            applyAdjustment(unitData.value.skill.get(sancData.altRoll.skill), adjustment);
+            applyAdjustment(unitData.value.skill[sancData.altRoll.skill], adjustment);
           altRollRate = clamp(altRollRate, 0, 100);
         }
 
@@ -156,7 +156,7 @@ const rootApp = createApp({
       setting,
       initInsanity,
       allSanLoss,
-      unitDataMap,
+      unitDataDic,
       unitData,
       sancDataArr,
       sanDataArr,
