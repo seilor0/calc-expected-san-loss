@@ -7,7 +7,7 @@
   <title>SAN減少量計算</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300..700" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200..400,0,0&icon_names=drag_indicator" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200..400,0,0&icon_names=drag_indicator,edit" />
 
   <link rel="stylesheet" href="../__utility/style.css" />
   <link rel="stylesheet" href="style.css" />
@@ -68,8 +68,11 @@
               </div>
 
               <div class="new-mofism">
-                <span style="font-size: 0.9em;">キャラクター</span>
-                <select v-model="setting.unitName" style="width: stretch;height: 1.5em;font-size: calc(1em + 1px);">
+                <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
+                  キャラクター
+                  <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="unit-edit-dialog">edit</button>
+                </span>
+                <select v-model="setting.unitName" style="width: stretch;height: 1.5em;font-size: 1em;">
                   <option value=""></option>
                   <option v-for="name in Object.keys(unitDataDic)" :value="name">{{name}}</option>
                 </select>
@@ -302,6 +305,8 @@
 Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights reserved. Arranged by Arclight Inc. Call of Cthulhu is a registered trademark of Chaosium Inc.
 PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
     </footer>
+
+    <dialog id="unit-edit-dialog" closedby="any"></dialog>
   </div>
   <script type="module" src="./code-vue.js"></script>
 </body>
