@@ -35,7 +35,7 @@ const rootApp = createApp({
       isPlus = false;
 
       autoSuccess = '';
-      preRoll = {skill: '', adjustment: '', isSucceed: false,};
+      preRoll = {skill: '', adjustment: '', isFail: false,};
       altRoll = {skill: '', adjustment: '',};
       actLoss = '';
 
@@ -122,9 +122,9 @@ const rootApp = createApp({
       // console.log('san-data-arr:', resultArr);
       return resultArr;
     });
-    const allSanLoss = computed(() => {
-      return sanDataArr.value.at(-1) ? initInsanity.value - sanDataArr.value.at(-1).remainSan : 0;
-    });
+    const allSanLoss = computed(() => {return sanDataArr.value.at(-1) ? initInsanity.value - sanDataArr.value.at(-1).remainSan : 0;});
+    sancDataArr.value.push(new SancData('',false));
+    sancDataArr.value.push(new SancData('',false));
 
     
     const dragIndex = ref(null);

@@ -50,36 +50,47 @@
   
           <template v-else-if="setting.process==='get-sanc-list'"></template>
   
-          <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 1rem;">
+          <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 5rem;">
 
-            <div style="display: flex;flex-direction: column;gap: 1rem;margin-block-end: 1rem;">
+            <div style="display: flex;flex-direction: column;gap: 1rem;">
+              
+              <div style="display: flex;gap: 0.5rem;">
+                <button class="icon-frame" @click="addNewData">
+                  <div class="icon icon-plus"></div>
+                </button>
+                <button class="icon-frame" @click="deleteLastData">
+                  <div class="icon icon-minus"></div>
+                </button>
+              </div>
+
               <div class="mini-card">
                 <div>初期SAN値</div>
                 <input type="number" class="init-insanity" v-model="initInsanity" />
               </div>
+
               <div class="mini-card">
                 <div>総減少量</div>
                 <div :class="{'red': initInsanity < allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
               </div>
 
-              <div style="display: grid;grid-template-columns: auto auto;gap: 0.5rem;">
-                <p style="grid-column: 1/-1;margin-block: 0;">オプション：</p>
-                <span>1.自動成功/失敗</span>
+              <div class="new-mofism setting-wrapper">
+                <span>自動成功</span>
                 <toggle-button :is-checked="setting.options.autoSuccess" @checked-toggle="val=>setting.options.autoSuccess=val" :top-is-slicer="true" ></toggle-button>
-                <span>2.判定成功/失敗でSANc</span>
+                <span>判定成功でSANc</span>
                 <toggle-button :is-checked="setting.options.preRoll" @checked-toggle="val=>setting.options.preRoll=val" :top-is-slicer="true"></toggle-button>
-                <span>3.判定がSANc以外</span>
+                <span>SANc以外</span>
                 <toggle-button :is-checked="setting.options.altRoll" @checked-toggle="val=>setting.options.altRoll=val" :top-is-slicer="true"></toggle-button>
-                <span>4.実際の減少量を反映</span>
+                <span>実際の減少量を反映</span>
                 <toggle-button :is-checked="setting.options.actLoss" @checked-toggle="val=>setting.options.actLoss=val" :top-is-slicer="true"></toggle-button>
               </div>
 
-              <div>
+              <div class="new-mofism">
+                キャラクター
                 <select v-model="setting.unitName" style="width: stretch;height: 1.5rem;">
                   <option value=""></option>
                   <option v-for="name in unitDataMap.keys()" :value="name">{{name}}</option>
                 </select>
-                <table class="sanc-table has-border" style="width: stretch;margin-block-start: 0.5rem;font-size: 0.9em;">
+                <table v-show="unitData.size" class="sanc-table has-border" style="width: stretch;margin-block-start: 0.5rem;font-size: 0.9em;">
                   <thead>
                     <tr>
                       <th>技能名</th>
@@ -97,13 +108,6 @@
             </div>
 
             <div>
-              <button class="icon-frame" @click="addNewData">
-                <div class="icon icon-plus"></div>
-              </button>
-              <button class="icon-frame" @click="deleteLastData">
-                <div class="icon icon-minus"></div>
-              </button>
-
               <table class="sanc-table">
                 <thead>
                   <tr>
@@ -191,9 +195,9 @@
                           class="short-input" 
                         />
                         <button-tag 
-                          :is-checked="sancData.preRoll.isSucceed" 
-                          @checked-toggle="val=>sancData.preRoll.isSucceed=val" 
-                          text-checked="成功" text-not-checked="失敗"
+                          :is-checked="sancData.preRoll.isFail" 
+                          @checked-toggle="val=>sancData.preRoll.isFail=val" 
+                          text-checked="失敗" text-not-checked="成功"
                         ></button-tag>
                       </span>
                     </td>
