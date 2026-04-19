@@ -28,28 +28,15 @@ const rootApp = createApp({
 
     const unitDataMap = ref(new Map());
     const unitData = computed(() => unitDataMap.value.get(setting.value.unitName) ?? {skill:new Map([])});
-    watch(unitData, ()=>{
-      if ('san' in unitData.value) initInsanity.value = unitData.value.san;
-    });
+    watch(unitData, ()=>{if ('san' in unitData.value) initInsanity.value = unitData.value.san;});
 
     class SancData {
       sancText = '';
       isPlus = false;
 
-      // option 1
       autoSuccess = '';
-      // option 2
-      preRoll = {
-        skill: '',
-        adjustment: '',
-        isSucceed: false,
-      };
-      // option 3
-      altRoll = {
-        skill: '',
-        adjustment: '',
-      };
-      // option 4
+      preRoll = {skill: '', adjustment: '', isSucceed: false,};
+      altRoll = {skill: '', adjustment: '',};
       actLoss = '';
 
       constructor (sancText, isPlus) {
@@ -82,12 +69,10 @@ const rootApp = createApp({
         }
       }
     }
-    
     const sancDataArr = ref([]);
     const sanDataArr = computed(() => {
       const resultArr = [];
       let remain = initInsanity.value;
-
       sancDataArr.value.forEach((sancData, i) => {
         if (!sancData.sancExDic) return;
 
@@ -134,13 +119,24 @@ const rootApp = createApp({
 
         resultArr.push({lossEx:lossEx, remainSan:remain, preRoll:preRollRate, altRoll:altRollRate});
       });
-      console.log('san-data-arr:', resultArr);
+      // console.log('san-data-arr:', resultArr);
       return resultArr;
     });
-
     const allSanLoss = computed(() => {
       return sanDataArr.value.at(-1) ? initInsanity.value - sanDataArr.value.at(-1).remainSan : 0;
     });
+
+    
+    const dragIndex = ref(null);
+    const dragStart = (index) => { dragIndex.value = index; };
+    const dragEnter = (index) => {
+      if (index === dragIndex.value) return;
+      const deleteElement = sancDataArr.value.splice(dragIndex.value, 1)[0];
+      sancDataArr.value.splice(index, 0, deleteElement);
+      dragIndex.value = index;
+    };
+    const dragEnd = () => { dragIndex.value = null; };
+
 
     function addNewData () {sancDataArr.value.push(new SancData('',false));}
     function deleteLastData() {sancDataArr.value.pop();}
@@ -164,6 +160,12 @@ const rootApp = createApp({
       unitData,
       sancDataArr,
       sanDataArr,
+
+      dragIndex,
+      dragStart,
+      dragEnter,
+      dragEnd,
+
       addNewData,
       deleteLastData,
       floatRound,

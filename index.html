@@ -142,7 +142,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(sancData,index) in sancDataArr" :key="index" draggable="true">
+                  <tr v-for="(sancData,index) in sancDataArr"
+                    :key="index" 
+                    draggable="true"
+                    :class="index === dragIndex ? 'dragging' : null"
+
+                    @dragstart="dragStart(index)"
+                    @dragenter="dragEnter(index)"
+                    @dragover.prevent
+                    @dragend="dragEnd"
+                  >
                     <td>
                       <span class="cell-wrap">
                         <input 

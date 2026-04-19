@@ -86,6 +86,10 @@
     color: #ed1212;
     font-weight: 500;
   }
+
+  .dragging {
+    background-color: khaki;
+  }
 }
 
 @layer base {
