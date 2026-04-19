@@ -33,6 +33,10 @@
   }
 
   input[type=text],input[type=number]{field-sizing: content;}
+  input::placeholder {
+    color: currentColor;
+    opacity: 0.4;
+  }
 
   footer {
     color: gray;
