@@ -5,6 +5,19 @@
   --light-blue: #a3b7e0;
   --offwhite: #fafafa;
   accent-color: var(--blue);
+  --basic-font : 'Quicksand','Zen Kaku Gothic New';
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'wght' 400;
+
+  tr & {
+    color: currentColor;
+    opacity: 0.4;
+    position: absolute;
+    right: 100%;
+  }
+  tr:not(:hover) & {display: none;}
 }
 
 @layer base {
@@ -113,13 +126,27 @@
     background-color: transparent;
     border: 1px solid transparent;
     border-radius: 4px;
-    /* margin-block-start: 1rem; */
     padding: 0.5rem;
     &:hover {border-color: var(--light-blue);}
     &:active {
       color: var(--offwhite);
       background-color: var(--light-blue);
     }
+  }
+
+  .icon-frame.delete-icon {
+    color: white;
+    background-color: rgb(0 0 0 / 0.2);
+    border-radius: 50%;
+    padding: 0.5rem;
+    
+    position: absolute;
+    right: calc(100% + 1.5rem);
+
+    display: none;
+    tr:hover &, &:hover {display: block;}
+
+    .icon {--size: 0.75rem;}
   }
 
   .tab-ribbon {
@@ -302,15 +329,16 @@
       color: var(--offwhite);
       background-color: var(--blue);
       border: 1px solid var(--offwhite);
+      font-weight: bold;
       padding: 0.25rem 0.5rem;
     }
     th.thin {
       font-size: calc(1em - 2px);
-      font-weight: 300;
+      font-weight: 400;
       text-align: left;
     }
-    tr:first-child th:first-child {border-start-start-radius: 10px;}
-    tr:first-child th:last-child {border-start-end-radius: 10px;}
+    /* tr:first-child th:first-child {border-start-start-radius: 10px;} */
+    /* tr:first-child th:last-child {border-start-end-radius: 10px;} */
 
     select, input[type=text], input[type=number] {
       height: 1.5rem;
@@ -332,9 +360,11 @@
 
   .cell-wrap {
     display: flex;
+    align-items: center;
     width: stretch;
     height: stretch;
     gap: 4px;
+    position: relative;
     >input,
     >select
     {flex-grow: 1;}
