@@ -164,6 +164,14 @@ const rootApp = createApp({
       unitDataDic.value = structuredClone(json.unitData);
     }
 
+    function clear () {
+      initInsanity.value = 0;
+      unitDataDic.value = {};
+      sancDataArr.value.splice(0);
+      sancDataArr.value.push(new SancData());
+      sancDataArr.value.push(new SancData());  
+    }
+
     
     const dragIndex = ref(null);
     const dragStart = (index) => { dragIndex.value = index; };
@@ -180,6 +188,14 @@ const rootApp = createApp({
     function deleteLastData() {sancDataArr.value.pop();}
     
     function clickNextInput(e) {e.currentTarget.nextElementSibling?.click();}
+    
+
+    // for test
+    const testUnit1 = {
+      san: 60,
+      skill: { '目星':50, '聞き耳':60, '図書館':70, },
+    };
+    unitDataDic.value['test unit 1'] = testUnit1;
 
 
 
@@ -208,6 +224,7 @@ const rootApp = createApp({
 
       saveJson,
       loadJson,
+      clear,
 
       addNewData,
       deleteLastData,
