@@ -39,9 +39,20 @@ const rootApp = createApp({
       altRoll = {skill: '', adjustment: '',};
       actLoss = '';
 
-      constructor (sancText, isPlus) {
-        this.sancText = sancText;
-        this.isPlus = isPlus;
+      constructor (
+        sancText='', 
+        isPlus=false, 
+        autoSuccess='', 
+        preRoll={}, 
+        altRoll={}, 
+        actLoss=''
+      ) {
+        if (sancText) this.sancText = sancText;
+        if (isPlus) this.isPlus = isPlus;
+        if (autoSuccess) this.autoSuccess = autoSuccess;
+        if ('skill' in preRoll) this.preRoll = preRoll;
+        if ('skill' in altRoll) this.altRoll = altRoll;
+        if (actLoss) this.actLoss = actLoss;
       }
       
       get sancExDic () {
@@ -119,12 +130,39 @@ const rootApp = createApp({
 
         resultArr.push({lossEx:lossEx, remainSan:remain, preRoll:preRollRate, altRoll:altRollRate});
       });
-      // console.log('san-data-arr:', resultArr);
       return resultArr;
     });
     const allSanLoss = computed(() => {return sanDataArr.value.at(-1) ? initInsanity.value - sanDataArr.value.at(-1).remainSan : 0;});
-    sancDataArr.value.push(new SancData('',false));
-    sancDataArr.value.push(new SancData('',false));
+    sancDataArr.value.push(new SancData());
+    sancDataArr.value.push(new SancData());
+
+
+    function saveJson () {
+      const json = {sancData: sancDataArr.value, unitData: unitDataDic.value};
+      const jsonString = JSON.stringify(json);
+
+      // save
+      const blob = new Blob([jsonString], {type:'text/plain'});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      const date = new Date();
+      const dateText = `${date.getFullYear()}-${String(date.getMonth()).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}-${String(date.getHours()).padStart(2,'0')}${String(date.getMinutes()).padStart(2,'0')}`;
+
+      link.download = `sancdata-${dateText}.json`;
+      link.click();
+    }
+
+    async function loadJson (e) {
+      const file = e.currentTarget.files[0];
+      if (!file) return;
+      e.currentTarget.value = null;
+      const json = JSON.parse(await file.text());
+
+      // sancData
+      sancDataArr.value = json.sancData.map(data => new SancData(...Object.values(data)));
+      // unitData
+      unitDataDic.value = structuredClone(json.unitData);
+    }
 
     
     const dragIndex = ref(null);
@@ -138,8 +176,10 @@ const rootApp = createApp({
     const dragEnd = () => { dragIndex.value = null; };
 
 
-    function addNewData () {sancDataArr.value.push(new SancData('',false));}
+    function addNewData () {sancDataArr.value.push(new SancData());}
     function deleteLastData() {sancDataArr.value.pop();}
+    
+    function clickNextInput(e) {e.currentTarget.nextElementSibling?.click();}
 
 
 
@@ -166,8 +206,12 @@ const rootApp = createApp({
       dragEnter,
       dragEnd,
 
+      saveJson,
+      loadJson,
+
       addNewData,
       deleteLastData,
+      clickNextInput,
       floatRound,
     }
   }
