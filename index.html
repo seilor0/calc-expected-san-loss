@@ -52,28 +52,9 @@
   
           <template v-else-if="setting.process==='get-sanc-list'"></template>
   
-          <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 5rem;">
+          <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 4rem;">
 
             <div style="display: flex;flex-direction: column;gap: 1rem;">
-              
-              <div style="display: flex;gap: 0.5rem;">
-                <button class="icon-frame" @click="addNewData">
-                  <div class="icon icon-plus"></div>
-                </button>
-                <button class="icon-frame" @click="deleteLastData">
-                  <div class="icon icon-minus"></div>
-                </button>
-              </div>
-
-              <div class="mini-card">
-                <div>初期SAN値</div>
-                <input type="number" class="init-insanity" v-model="initInsanity" />
-              </div>
-
-              <div class="mini-card">
-                <div>総減少量</div>
-                <div :class="{'red': initInsanity < allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
-              </div>
 
               <div class="new-mofism setting-wrapper">
                 <span>自動成功</span>
@@ -87,12 +68,12 @@
               </div>
 
               <div class="new-mofism">
-                キャラクター
-                <select v-model="setting.unitName" style="width: stretch;height: 1.5rem;">
+                <span style="font-size: 0.9em;">キャラクター</span>
+                <select v-model="setting.unitName" style="width: stretch;height: 1.5em;font-size: calc(1em + 1px);">
                   <option value=""></option>
                   <option v-for="name in Object.keys(unitDataDic)" :value="name">{{name}}</option>
                 </select>
-                <table class="sanc-table has-border" style="width: stretch;margin-block-start: 0.5rem;font-size: 0.9em;">
+                <table class="test-table" style="font-size: 0.9em;">
                   <tbody>
                     <tr v-for="[key, value] in Object.entries(unitData.skill)">
                       <td>{{key}}</td>
@@ -104,6 +85,27 @@
             </div>
 
             <div>
+              
+              <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
+                <div class="mini-card" style="width: 9rem;">
+                  <div>初期SAN値</div>
+                  <input type="number" class="init-insanity" v-model="initInsanity" />
+                </div>
+                
+                <div class="mini-card" style="width: 9rem;">
+                  <div>総減少量</div>
+                  <div :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
+                </div>
+
+                <button class="icon-frame" @click="addNewData">
+                  <div class="icon icon-plus"></div>
+                </button>
+
+                <button class="icon-frame" @click="deleteLastData">
+                  <div class="icon icon-minus"></div>
+                </button>
+              </div>
+
               <table class="sanc-table">
                 <thead>
                   <tr>
@@ -126,9 +128,11 @@
                       オプション4<br>
                       実際の減少量を反映
                     </th>
-                    <th v-else rowspan="2">変動期待値</th>
+                    <th v-else rowspan="2">
+                      変動期待値
+                    </th>
                     <th rowspan="2">
-                      残り<br>SAN値
+                      残りSAN値
                     </th>
                   </tr>
                   <tr>
@@ -293,7 +297,7 @@
           </table>
         </div>
       </div>
-      <pre style="text-align: center;margin-block-end: unset;white-space: pre-wrap;">
+      <pre style="text-align: center;margin-block-end: unset;white-space: pre-wrap;font-family: unset;">
 当サイトは、「株式会社アークライト」及び「株式会社KADOKAWA」が権利を有する『クトゥルフ神話TRPG』シリーズの二次創作物です。
 Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights reserved. Arranged by Arclight Inc. Call of Cthulhu is a registered trademark of Chaosium Inc.
 PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
