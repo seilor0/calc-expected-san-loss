@@ -352,12 +352,11 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
         </div>
 
         <div class="setting-wrapper" style="margin-inline-start: 3ch;margin-block-start: 0.5rem;">
-          <template v-for="name in Object.keys(unitDataDic)">
+          <template v-for="[name,data] in Object.entries(unitDataDic)">
             {{name}}
-            <toggle-button></toggle-button>
+            <toggle-button :is-checked="data.save" @checked-toggle="val=>data.save=val"></toggle-button>
           </template>
         </div>
-
       </section>
       <footer>
         <button class="test-button" @click="saveJson">データを保存</button>

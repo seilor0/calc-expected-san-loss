@@ -88,7 +88,7 @@ const rootApp = createApp({
 
     const unitDataDic = ref({});
     const unitData = computed(() => unitDataDic.value[setting.value.unitName] ?? new UnitData());
-    watch(unitData, ()=>{if ('san' in unitData.value) initInsanity.value = unitData.value.san;});
+    watch(unitData, (newData)=>{if (typeof(newData.san)==='number') initInsanity.value = newData.san;});
 
 
     const sancDataArr = ref([]);
@@ -151,7 +151,9 @@ const rootApp = createApp({
       if (setting.value.save.setting) json.setting = setting.value;
       if (setting.value.save.sancData) json.sancData = sancDataArr.value;
       if (setting.value.save.unitData) {
-        json.unitData = unitDataDic.value;
+        json.unitData = Object.fromEntries(
+          Object.entries(unitDataDic.value).filter(([key, value])=>value.save)
+        );
       }
       const jsonString = JSON.stringify(json);
 
