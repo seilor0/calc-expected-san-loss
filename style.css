@@ -12,14 +12,15 @@
 .material-symbols-outlined {
   font-variation-settings: 'wght' 400;
   color: currentColor;
+}
 
-  tr & {
-    opacity: 0.4;
-    position: absolute;
-    right: 100%;
-  }
+tr .material-symbols-outlined {
+  opacity: 0.4;
+  position: absolute;
+  right: 100%;
   tr:not(:hover) & {display: none;}
 }
+
 .material-symbols-outlined.edit-button {
   font-variation-settings: 'wght' 300;
 
@@ -42,21 +43,25 @@
 }
 
 @layer base {
+  html {height: 100%;}
+
   body {
     margin:0;
+    height: stretch;
     font-family: var(--basic-font);
   }
   
   #root {
     background-color: #fafafa;
-    min-height: 100dvh;
+    min-height: stretch;
     display: flex;
     flex-direction: column;
+    width: fit-content;
+    min-width: stretch;
   }
 
   main {
     display: flex;
-    justify-content: center;
     flex: 1;
   }
   
@@ -70,10 +75,14 @@
     field-sizing: content;
     font-family: unset;
   }
+  input[type=text],input[type=number],select,textarea {
+    border: 1px solid hsl(from currentColor h s l / 0.33);
+    border-radius: 2px;
+  }
   select {
     font-family: unset;
   }
-  input::placeholder {
+  input::placeholder, textarea::placeholder {
     color: currentColor;
     opacity: 0.4;
   }
@@ -120,6 +129,63 @@
       }
     }
   }
+
+  dialog {
+    color: darkslategray;
+    background-color: #fafafa;
+    border: 1px solid darkgray;
+    border-radius: 7px;
+    scrollbar-color: #ccc transparent;
+    box-shadow: 0px 2px 17px 1px rgb(0 0 0 / 19%);
+    overflow: hidden auto;
+    padding: 0;
+    
+    max-height: 90%;
+    min-width: 20rem;
+  
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      
+      background: linear-gradient(150deg,#e7ecef 40%, #cee8ed 100%);
+      padding: 0.5rem 0.75rem;
+  
+      position: sticky;
+      top: 0;
+  
+      h2 {
+        font-size: 1.2em;
+        font-weight: 500;
+        user-select: none;
+        margin: 0;
+      }
+
+      .icon-frame {
+        color: slategray;
+        background-color: transparent;
+        border: 1px solid slategray;
+        border-radius: 3px;
+        padding: 0.5rem;
+      }
+      .icon {
+        --size: 0.75rem;
+        --line-radius: 1px;
+      }
+    }
+  
+    section {
+      padding: 0.75rem;
+    }
+
+    footer {
+      padding: 0.5rem 0.75rem;
+      border-style: none;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
 }
 
 @layer state {
@@ -150,7 +216,7 @@
     --line-radius: 2px;
   }
 
-  button.icon-frame {
+  main button.icon-frame {
     color: #9bd4de;
     background-color: transparent;
     border: 1px solid #7ec7d4;
@@ -235,6 +301,7 @@
     align-items: center;
     flex-direction: column;
     gap: 1rem;
+    white-space: nowrap;
   
     position: sticky;
     top: 0;
@@ -269,8 +336,17 @@
     gap: 0.5rem;
     white-space: nowrap;
     height: max-content;
+  }
 
-    p {font-size: smaller;}
+  .title {
+    color: darkslategray;
+    background: linear-gradient(150deg,#e7ecef 40%, #cee8ed 100%);
+    border-radius: 5rem;
+    margin-block: 0;
+    margin-inline-start:-0.5rem;
+    padding: 4px 0.75rem;
+    width: max-content;
+    font-weight: 500;
   }
 
   .setting-wrapper {
@@ -304,6 +380,22 @@
       color: var(--blue);
       background: var(--offwhite);
       border-color: var(--light-blue);
+    }
+  }
+
+  .test-button {
+    color: white;
+    background-color: var(--blue);
+    border: 1px solid var(--offwhite);
+    border-radius: 4px;
+    font-family: unset;
+    padding: 0.25rem 0.5rem;
+    user-select: none;
+
+    &:active {
+      color: var(--blue);
+      background-color: transparent;
+      border-color: var(--blue);
     }
   }
   
@@ -341,7 +433,10 @@
     color: darkslategray;
     border-spacing: 2px;
 
-    thead {background: linear-gradient(150deg,#e7ecef 40%, #cee8ed 100%);}
+    thead {
+      background: linear-gradient(150deg,#e7ecef 20%, #cee8ed 100%);
+      white-space: nowrap;
+    }
     td {padding-block: 0.25rem;}
     th {
       font-weight: 500;
@@ -400,13 +495,12 @@
 
 
   .button-tag {
-    --color: gray;
-    --line-color: hsl(from var(--color) h s 35);
-    --fill-color:  hsl(from var(--color) h s 50);
+    --color: darkslategray;
+    --checked-color: hsl(from var(--color) h s 35);
     
     color: var(--color);
     background-color: transparent;
-    border: 1px solid var(--color);
+    border: 1px solid hsl(from currentColor h s l / 0.7);
     
     font-size: calc(1em - 2px);
     font-weight: 400;
@@ -418,8 +512,8 @@
   
     &:has(:checked) {
       color: white;
-      background-color: var(--fill-color);
-      border-color: var(--line-color);
+      background-color: hsl(from var(--checked-color) h s l / 0.8);;
+      border-color: var(--checked-color);
     }
     input[type=checkbox] {display: none;}
   }
