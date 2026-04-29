@@ -20,7 +20,7 @@
       <div class="sidemenu">
         <h1>SAN減少量<br>計算ツール</h1>
 
-        <button class="round blue" @click="saveJson">セーブ</button>
+        <button class="round blue" command="show-modal" commandfor="save-json-dialog">セーブ</button>
         <button class="round blue" @click="clickNextInput">ロード</button>
         <input type="file" id="jsonInput" accept=".json" style="display: none;" @change="loadJson">
         <button class="round" @click="clear">クリア</button>
@@ -56,20 +56,23 @@
 
             <div style="display: flex;flex-direction: column;gap: 1rem;">
 
-              <div class="new-mofism setting-wrapper">
-                <span>自動成功</span>
-                <toggle-button :is-checked="setting.options.autoSuccess" @checked-toggle="val=>setting.options.autoSuccess=val" :top-is-slicer="true" ></toggle-button>
-                <span>判定成功でSANc</span>
-                <toggle-button :is-checked="setting.options.preRoll" @checked-toggle="val=>setting.options.preRoll=val" :top-is-slicer="true"></toggle-button>
-                <span>SANc以外</span>
-                <toggle-button :is-checked="setting.options.altRoll" @checked-toggle="val=>setting.options.altRoll=val" :top-is-slicer="true"></toggle-button>
-                <span>実際の減少量を反映</span>
-                <toggle-button :is-checked="setting.options.actLoss" @checked-toggle="val=>setting.options.actLoss=val" :top-is-slicer="true"></toggle-button>
+              <div class="new-mofism">
+                <p class="title">オプション</p>
+                <div class="setting-wrapper">
+                  <span>自動成功</span>
+                  <toggle-button :is-checked="setting.options.autoSuccess" @checked-toggle="val=>setting.options.autoSuccess=val"></toggle-button>
+                  <span>○○成功でSANc</span>
+                  <toggle-button :is-checked="setting.options.preRoll" @checked-toggle="val=>setting.options.preRoll=val"></toggle-button>
+                  <span>SANc以外で判定</span>
+                  <toggle-button :is-checked="setting.options.altRoll" @checked-toggle="val=>setting.options.altRoll=val"></toggle-button>
+                  <span>実際の減少量を反映</span>
+                  <toggle-button :is-checked="setting.options.actLoss" @checked-toggle="val=>setting.options.actLoss=val"></toggle-button>
+                </div>
               </div>
 
               <div class="new-mofism">
                 <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
-                  キャラクター
+                  <p class="title">キャラクター</p>
                   <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="unit-edit-dialog">edit</button>
                 </span>
                 <select v-model="setting.unitName" style="width: stretch;height: 1.5em;font-size: 1em;">
@@ -78,6 +81,10 @@
                 </select>
                 <table class="test-table" style="font-size: 0.9em;">
                   <tbody>
+                    <tr v-show="typeof(unitData.san)==='number'">
+                      <td>SAN</td>
+                      <td>{{unitData.san ?? null}}</td>
+                    </tr>
                     <tr v-for="[key, value] in Object.entries(unitData.skill)">
                       <td>{{key}}</td>
                       <td>{{value}}</td>
@@ -88,7 +95,6 @@
             </div>
 
             <div>
-              
               <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
                 <div class="mini-card" style="width: 9rem;">
                   <div>初期SAN値</div>
@@ -112,9 +118,7 @@
               <table class="sanc-table">
                 <thead>
                   <tr>
-                    <th rowspan="2">
-                      SAN変動
-                    </th>
+                    <th rowspan="2"></th>
                     <th v-show="setting.options.autoSuccess" class="thin">
                       オプション1<br>
                       自動成功
@@ -129,13 +133,13 @@
                     </th>
                     <th v-if="setting.options.actLoss" colspan="2" class="thin">
                       オプション4<br>
-                      実際の減少量を反映
+                      実際の値を反映
                     </th>
                     <th v-else rowspan="2">
-                      変動期待値
+                      期待値
                     </th>
                     <th rowspan="2">
-                      残りSAN値
+                      残SAN
                     </th>
                   </tr>
                   <tr>
@@ -208,7 +212,7 @@
                       </span>
                     </td>
                     <td v-show="setting.options.preRoll" class="center pad-inline">
-                      {{sanDataArr[index].preRoll===null ? null : floatRound(sanDataArr[index].preRoll, 2)}}
+                      {{calcedArr[index].preRoll===null ? null : floatRound(calcedArr[index].preRoll, 2)}}
                     </td>
                     
                     <td v-show="setting.options.altRoll">
@@ -228,11 +232,11 @@
                       </span>
                     </td>
                     <td v-show="setting.options.altRoll" class="center pad-inline">
-                      {{sanDataArr[index].altRoll===null ? null : floatRound(sanDataArr[index].altRoll, 2)}}
+                      {{calcedArr[index].altRoll===null ? null : floatRound(calcedArr[index].altRoll, 2)}}
                     </td>
                     
                     <td class="center pad-inline">
-                      {{floatRound(sanDataArr[index].lossEx, 2)}}
+                      {{floatRound(calcedArr[index].lossEx, 2)}}
                     </td>
                     <td v-show="setting.options.actLoss">
                       <input 
@@ -244,7 +248,7 @@
                     </td>
   
                     <td class="center pad-inline">
-                      {{floatRound(sanDataArr[index].remainSan, 2)}}
+                      {{floatRound(calcedArr[index].remainSan, 2)}}
                     </td>
                   </tr>
                 </tbody>
@@ -306,7 +310,60 @@ Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights res
 PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
     </footer>
 
-    <dialog id="unit-edit-dialog" closedby="any"></dialog>
+    <dialog id="unit-edit-dialog" closedby="any">
+      <header>
+        <h2>キャラクターデータ編集</h2>
+        <button-css-icon icon-name="icon-close" command="close" commandfor="unit-edit-dialog"></button-css-icon>
+      </header>
+      <section>
+        <div style="display: flex;gap: 1rem;">
+          <div style="display: flex;flex-direction: column;gap: 0.5rem;border-inline-end: 1px solid hsl(from currentColor h s l /0.5);padding-inline-end: 0.75rem;">
+            <label v-for="name in Object.keys(unitDataDic)">
+              <input type="radio" name="edit-unit-data" style="display: none;" />
+              {{name}}
+            </label>
+            <button class="icon-frame" style="align-self: center;">
+              <div class="icon icon-plus"></div>
+            </button>
+          </div>
+
+          <div style="display: flex;flex-direction: column;gap: 0.75rem;">
+            <input type="text" placeholder="キャラクター名" />
+            <input type="number" placeholder="SAN値" />
+            <textarea placeholder="技能値"></textarea>
+          </div>
+        </div>
+      </section>
+    </dialog>
+
+    <dialog id="save-json-dialog" closedby="any">
+      <header>
+        <h2>保存データ</h2>
+        <button-css-icon icon-name="icon-close" command="close" commandfor="save-json-dialog"></button-css-icon>
+      </header>
+      <section>
+        <div class="setting-wrapper">
+          現在の設定
+          <toggle-button :is-checked="setting.save.setting" @checked-toggle="val=>setting.save.setting=val"></toggle-button>
+          SANcデータ
+          <toggle-button :is-checked="setting.save.sancData" @checked-toggle="val=>setting.save.sancData=val"></toggle-button>
+          キャラクターデータ
+          <toggle-button :is-checked="setting.save.unitData" @checked-toggle="val=>setting.save.unitData=val"></toggle-button>
+        </div>
+
+        <div class="setting-wrapper" style="margin-inline-start: 3ch;margin-block-start: 0.5rem;">
+          <template v-for="name in Object.keys(unitDataDic)">
+            {{name}}
+            <toggle-button></toggle-button>
+          </template>
+        </div>
+
+      </section>
+      <footer>
+        <button class="test-button" @click="saveJson">データを保存</button>
+      </footer>
+    </dialog>
+
   </div>
   <script type="module" src="./code-vue.js"></script>
 </body>

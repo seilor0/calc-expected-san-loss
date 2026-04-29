@@ -13,6 +13,61 @@ const rootApp = createApp({
   },
 
   setup () {
+    class UnitData {
+      constructor ({
+        save=true, 
+        san=null, 
+        skill={}
+      } = {}) {
+        this.save = save;
+        this.san = san;
+        this.skill = skill;
+      }
+    }
+    class SancData {
+      constructor ({
+        sancText='', 
+        isPlus=false, 
+        autoSuccess='',
+        preRoll={skill: '', adjustment: '', isFail: false,}, 
+        altRoll={skill: '', adjustment: ''}, 
+        actLoss=''
+      } = {}) {
+        this.sancText = sancText;
+        this.isPlus = isPlus;
+        this.autoSuccess = autoSuccess;
+        this.preRoll = preRoll;
+        this.altRoll = altRoll;
+        this.actLoss = actLoss;
+      }
+
+      get sancExDic () {
+        const splitArr = this.sancText.split('/');
+        if (splitArr.length===1)
+          return {single: true, ex: calcEx(this.sancText)};
+        else if (splitArr.length===2)
+          return {single: false, sucEx: calcEx(splitArr[0]), failEx: calcEx(splitArr[1])};
+        else {
+          console.log('out of sancText-text-format.');
+          return null;
+        }
+        function calcEx(diceText) {
+          let ex = 0;
+          diceText
+            .split('+')
+            .forEach(str => {
+              if (/^\d+$/.test(str)) ex += parseInt(str);
+              else if (/^\d+D\d+$/i.test(str)) {
+                const {num=0, dice=0} = str.match(/^(?<num>\d+)D(?<dice>\d+)$/i)?.groups ?? {};
+                ex += parseInt(num) * (1+parseInt(dice)) / 2;
+              }
+            });
+          return ex;
+        }
+      }
+    }
+
+
     const setting = ref({
       process: 'calc-evalue',
       unitName: '',
@@ -32,61 +87,12 @@ const rootApp = createApp({
     const initInsanity = ref('');
 
     const unitDataDic = ref({});
-    const unitData = computed(() => unitDataDic.value[setting.value.unitName] ?? {skill:{}});
+    const unitData = computed(() => unitDataDic.value[setting.value.unitName] ?? new UnitData());
     watch(unitData, ()=>{if ('san' in unitData.value) initInsanity.value = unitData.value.san;});
 
-    class SancData {
-      sancText = '';
-      isPlus = false;
 
-      autoSuccess = '';
-      preRoll = {skill: '', adjustment: '', isFail: false,};
-      altRoll = {skill: '', adjustment: '',};
-      actLoss = '';
-
-      constructor (
-        sancText='', 
-        isPlus=false, 
-        autoSuccess='', 
-        preRoll={}, 
-        altRoll={}, 
-        actLoss=''
-      ) {
-        if (sancText) this.sancText = sancText;
-        if (isPlus) this.isPlus = isPlus;
-        if (autoSuccess) this.autoSuccess = autoSuccess;
-        if ('skill' in preRoll) this.preRoll = preRoll;
-        if ('skill' in altRoll) this.altRoll = altRoll;
-        if (actLoss) this.actLoss = actLoss;
-      }
-      
-      get sancExDic () {
-        const splitArr = this.sancText.split('/');
-        if (splitArr.length===1)
-          return {single: true, ex: calcEx(this.sancText)};
-        else if (splitArr.length===2)
-          return {single: false, sucEx: calcEx(splitArr[0]), failEx: calcEx(splitArr[1])};
-        else {
-          console.log('out of sancText-text-format.');
-          return null;
-        }
-        function calcEx(diceText) {
-          let ex = 0;
-          diceText
-            .split('+')
-            .forEach(str => {
-              if (/^\d+$/.test(str)) ex += parseInt(str);
-              else if (/^\d+D\d+$/i.test(str)) {
-                const {num, dice} = str.match(/^(?<num>\d+)D(?<dice>\d+)$/i)?.groups ?? {};
-                ex += parseInt(num) * (1+parseInt(dice)) / 2;
-              }
-            });
-          return ex;
-        }
-      }
-    }
     const sancDataArr = ref([]);
-    const sanDataArr = computed(() => {
+    const calcedArr = computed(() => {
       const resultArr = [];
       let remain = initInsanity.value || 0;
       sancDataArr.value.forEach((sancData, i) => {
@@ -137,9 +143,7 @@ const rootApp = createApp({
       });
       return resultArr;
     });
-    const allSanLoss = computed(() => {return sanDataArr.value.at(-1) ? initInsanity.value - sanDataArr.value.at(-1).remainSan : 0;});
-    sancDataArr.value.push(new SancData());
-    sancDataArr.value.push(new SancData());
+    const allSanLoss = computed(() => {return calcedArr.value.at(-1) ? initInsanity.value - calcedArr.value.at(-1).remainSan : 0;});
 
 
     function saveJson () {
@@ -168,12 +172,12 @@ const rootApp = createApp({
       e.currentTarget.value = null;
       const json = JSON.parse(await file.text());
 
-      // setting
       if ('setting' in json) setting.value = structuredClone(json.setting);
-      // sancData
-      if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(...Object.values(data)));
-      // unitData
-      if ('unitData' in json) unitDataDic.value = structuredClone(json.unitData);
+      if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(data));
+      if ('unitData' in json)
+        unitDataDic.value = Object.fromEntries(
+          Object.entries(json.unitData).map(([key, value]) => [key, new UnitData(value)])
+        );
     }
 
     function clear () {
@@ -203,11 +207,8 @@ const rootApp = createApp({
     
 
     // for test
-    const testUnit1 = {
-      san: 60,
-      skill: { '目星':50, '聞き耳':60, '図書館':70, },
-    };
-    unitDataDic.value['test unit 1'] = testUnit1;
+    unitDataDic.value['test unit 1'] = new UnitData({san:60, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
+    unitDataDic.value['test unit 2'] = new UnitData({san:0, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
 
 
 
@@ -216,6 +217,9 @@ const rootApp = createApp({
       setting.value = json.setting;
       document.querySelector('footer table tbody').innerHTML = json.changeLog
       .reduce((acc, cur) => acc += `<tr><td>${cur.date}</td><td>${cur.version}</td><td>${cur.detail}</td></tr>`, '');
+
+      sancDataArr.value.push(new SancData());
+      sancDataArr.value.push(new SancData());
     })
 
 
@@ -227,7 +231,7 @@ const rootApp = createApp({
       unitDataDic,
       unitData,
       sancDataArr,
-      sanDataArr,
+      calcedArr,
 
       dragIndex,
       dragStart,
