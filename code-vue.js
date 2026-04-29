@@ -21,6 +21,11 @@ const rootApp = createApp({
         preRoll: true,
         altRoll: true,
         actLoss: true,
+      },
+      save: {
+        setting: true,
+        sancData: true,
+        unitData: true,
       }
     });
 
@@ -138,7 +143,12 @@ const rootApp = createApp({
 
 
     function saveJson () {
-      const json = {sancData: sancDataArr.value, unitData: unitDataDic.value};
+      const json = {};
+      if (setting.value.save.setting) json.setting = setting.value;
+      if (setting.value.save.sancData) json.sancData = sancDataArr.value;
+      if (setting.value.save.unitData) {
+        json.unitData = unitDataDic.value;
+      }
       const jsonString = JSON.stringify(json);
 
       // save
@@ -158,10 +168,12 @@ const rootApp = createApp({
       e.currentTarget.value = null;
       const json = JSON.parse(await file.text());
 
+      // setting
+      if ('setting' in json) setting.value = structuredClone(json.setting);
       // sancData
-      sancDataArr.value = json.sancData.map(data => new SancData(...Object.values(data)));
+      if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(...Object.values(data)));
       // unitData
-      unitDataDic.value = structuredClone(json.unitData);
+      if ('unitData' in json) unitDataDic.value = structuredClone(json.unitData);
     }
 
     function clear () {
