@@ -109,7 +109,7 @@ const rootApp = createApp({
     }
     function endUnitEdit () {
       // 表示名への変更を反映
-      if (unitIndex !== -1) setting.value.unit = editUnitArr.value.find(dic=>dic.id===unitIndex).name;
+      if (unitIndex !== -1) setting.value.unit = editUnitArr.value.find(dic=>dic.id===unitIndex)?.name ?? '';
       unitIndex = null;
       // ユニットデータへエクスポート
       unitDic.value = Object.fromEntries(
