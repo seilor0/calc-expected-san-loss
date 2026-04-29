@@ -255,10 +255,12 @@ const rootApp = createApp({
           lossEx = sancData.sancExDic.ex;
 
         // option 1
-        else if (sancData.autoSuccess !== '')
+        else if (sancData.autoSuccess !== '') {
           lossEx = sancData.autoSuccess==='success' ? sancData.sancExDic.sucEx : sancData.sancExDic.failEx;
+          // option 2
+          if (preRollRate!==null) lossEx *= preRollRate/100;
 
-        else {
+        } else {
           // option 3
           const rate = clamp(altRollRate ?? remain, 0, 100) / 100;
           lossEx = sancData.sancExDic.sucEx * rate + sancData.sancExDic.failEx * (1-rate);
