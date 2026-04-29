@@ -237,6 +237,7 @@ const rootApp = createApp({
             (parseInt(adjustment) || 0) : 
             applyAdjustment(unit.value.skill[sancData.preRoll.skill], adjustment);
           preRollRate = clamp(preRollRate, 0, 100);
+          if (sancData.preRoll.isFail) preRollRate = 100 - preRollRate;
         }
 
         // option 3 : 判定値
