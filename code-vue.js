@@ -70,7 +70,7 @@ const rootApp = createApp({
 
     const setting = ref({
       process: 'calc-evalue',
-      unitName: '',
+      unit: '',
       options: {
         autoSuccess: true,
         preRoll: true,
@@ -80,15 +80,146 @@ const rootApp = createApp({
       save: {
         setting: true,
         sancData: true,
-        unitData: true,
+        unit: true,
       }
     });
 
     const initInsanity = ref('');
 
-    const unitDataDic = ref({});
-    const unitData = computed(() => unitDataDic.value[setting.value.unitName] ?? new UnitData());
-    watch(unitData, (newData)=>{if (typeof(newData.san)==='number') initInsanity.value = newData.san;});
+    const unitDic = ref({});
+    const unit = computed(() => unitDic.value[setting.value.unit] ?? new UnitData());
+    watch(unit, (newData)=>{if (typeof(newData.san)==='number') initInsanity.value = newData.san;});
+
+    const editUnitArr = ref([]);
+    const editUnitIndex = ref(0);
+    const editUnit = computed(()=>editUnitArr.value[editUnitIndex.value] ?? {name:'', san:'', skillText:''});
+    let unitIndex = null;
+
+    function startUnitEdit () {
+      // 表示名のidを記憶
+      unitIndex = Object.keys(unitDic.value).findIndex(name=>name===setting.value.unit);
+      if (unitIndex !== -1) editUnitIndex.value = unitIndex;
+      // 編集用データをインポート
+      editUnitArr.value = Object.entries(unitDic.value).map(([name,data], index)=>{
+        const dic = {id: index, name: name, san: data.san, save: data.save, skillText: ''};
+        const skillText = Object.entries(data.skill).map(([key,value]) => `${key}\t${value}`).join('\n');
+        dic.skillText = skillText;
+        return dic;
+      });
+    }
+    function endUnitEdit () {
+      // 表示名への変更を反映
+      if (unitIndex !== -1) setting.value.unit = editUnitArr.value.find(dic=>dic.id===unitIndex).name;
+      unitIndex = null;
+      // ユニットデータへエクスポート
+      unitDic.value = Object.fromEntries(
+        editUnitArr.value
+          .filter(dic=>dic.name)
+          .map(dic => {
+            const skillArr = [];
+            dic.skillText
+              .split('\n')
+              .filter(Boolean)
+              .forEach(row => {
+                const {skill, value} = row.match(/(?<skill>.+)\b(?<value>\d+)$/)?.groups ?? {};
+                if (!skill) return;
+                skillArr.push([skill.trim(), parseFloat(value)]);
+              });
+            return [dic.name, new UnitData({save: dic.save, san: dic.san, skill:Object.fromEntries(skillArr)})];
+          })
+      );
+      // 編集用データをクリア
+      editUnitArr.value.splice(0);
+      editUnitIndex.value = 0;
+    }
+    function addNewEditUnit () {
+      editUnitArr.value.push({ id: editUnitArr.value.length, name: '', san: '', skillText: '' });
+    }
+    function deleteEditUnit (index) {
+      editUnitArr.value.splice(index,1);
+      if (index < editUnitIndex.value) editUnitIndex.value--;
+    }
+    function importCcfolia () {
+      const ccfoliaText = window.prompt('ココフォリア駒を貼付');
+      // id
+      const newId = editUnitArr.value.length;
+
+      // コマテキスト
+      if (ccfoliaText.startsWith('{')) {
+        const ccfoliaJson = JSON.parse(ccfoliaText);
+
+        // name
+        const name = ccfoliaJson.data.name;
+
+        // san
+        const san = ccfoliaJson.data.status.find(dic=>dic.label==='SAN').value ?? '';
+
+        // skill
+        // --チャパレ
+        const skillArr = chatpalette2arr(ccfoliaJson.data.commands);
+        // --能力値
+        ['STR', 'CON', 'POW', 'DEX', 'APP', 'SIZ', 'INT', 'EDU'].forEach(key => {
+          const value = ccfoliaJson.data.params.find(dic=>dic.label===key).value ?? null;
+          if (value) skillArr.push(`${key}\t${value}`);
+        });
+        // --幸運：7版
+
+        editUnitArr.value.push({ id: newId, name: name, san: san, skillText: skillArr.join('\n')});
+      } 
+      // チャパレテキスト
+      else {
+        const skillArr = chatpalette2arr(ccfoliaText);
+        editUnitArr.value.push({ id: newId, name: '', san: '', skillText: skillArr.join('\n')});
+      }
+      function chatpalette2arr (commandText) {
+        const resultArr = [];
+
+        [
+          [/^.*<=\{.*\}.*$/mg, ''], 
+          [/　/g, ' '],
+          [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
+          [new RegExp(`[「」『』【】〈〉\\[\\]《》≪≫]`, 'g'), ''],
+        ]
+          .reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), commandText)
+          .split('\n')
+          .filter(Boolean)
+          .forEach(base => {
+            const dic = {name: '', value: null};
+            // 複数回ロール
+            if (/^(?:x|rep|repeat)\d+/i.test(base)) base = base.replace(/(?:x|rep|repeat)\d+ */i, '');
+
+            // 組み合わせロール
+            if (/CBR/i.test(base)) {
+              const {val, val1, val2} = base.match(/(?<val>CBRB?\D*(?<val1>\d+)\D+(?<val2>\d+)\)?)/i)?.groups || {};
+              if (!val1 || !val2) return;
+              const name = base.replace(val, '').trim();
+              const targetValue = Math.min(parseInt(val1), parseInt(val2));
+              dic.name = name;
+              dic.value = targetValue;
+
+            // CCB<=70 skill
+            } else if (/(?:1d100|CCB?)<=/i.test(base)) {
+              const {value, name} = base.match(/(?:1d100|CCB?)<=(?<value>\d+) *(?<name>.*)/i)?.groups || {};
+              if(!name || !value) return;
+              dic.name = name;
+              dic.value = value;
+
+            // CCB skill @70
+            } else if (/(?:1d100|CCB?).*@\d+$/i.test(base)) {
+              const {name, value} = base.match(/(?:1d100|CCB?) *(?<name>.*) *@(?<value>\d+)$/i)?.groups || {};
+              if(!name || !value) return;
+              dic.name = name;
+              dic.value = value;
+
+            } else return;
+
+            dic.name = [['(', '（'], [')', '）'], [':','：']].reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), dic.name).trim();
+            resultArr.push(`${dic.name}\t${dic.value}`);
+          });
+        
+        return resultArr;
+      }
+    }
 
 
     const sancDataArr = ref([]);
@@ -104,7 +235,7 @@ const rootApp = createApp({
           const adjustment = sancData.preRoll.adjustment;
           preRollRate = sancData.preRoll.skill==='else' ? 
             (parseInt(adjustment) || 0) : 
-            applyAdjustment(unitData.value.skill[sancData.preRoll.skill], adjustment);
+            applyAdjustment(unit.value.skill[sancData.preRoll.skill], adjustment);
           preRollRate = clamp(preRollRate, 0, 100);
         }
 
@@ -114,7 +245,7 @@ const rootApp = createApp({
           const adjustment = sancData.altRoll.adjustment;
           altRollRate = sancData.altRoll.skill==='else' ?
             (parseInt(adjustment) || 0) : 
-            applyAdjustment(unitData.value.skill[sancData.altRoll.skill], adjustment);
+            applyAdjustment(unit.value.skill[sancData.altRoll.skill], adjustment);
           altRollRate = clamp(altRollRate, 0, 100);
         }
 
@@ -143,16 +274,16 @@ const rootApp = createApp({
       });
       return resultArr;
     });
-    const allSanLoss = computed(() => {return calcedArr.value.at(-1) ? initInsanity.value - calcedArr.value.at(-1).remainSan : 0;});
+    const allSanLoss = computed(() => {return calcedArr.value.length ? initInsanity.value - calcedArr.value.at(-1).remainSan : 0;});
 
 
     function saveJson () {
       const json = {};
       if (setting.value.save.setting) json.setting = setting.value;
       if (setting.value.save.sancData) json.sancData = sancDataArr.value;
-      if (setting.value.save.unitData) {
-        json.unitData = Object.fromEntries(
-          Object.entries(unitDataDic.value).filter(([key, value])=>value.save)
+      if (setting.value.save.unit) {
+        json.unit = Object.fromEntries(
+          Object.entries(unitDic.value).filter(([key, value])=>value.save)
         );
       }
       const jsonString = JSON.stringify(json);
@@ -176,15 +307,15 @@ const rootApp = createApp({
 
       if ('setting' in json) setting.value = structuredClone(json.setting);
       if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(data));
-      if ('unitData' in json)
-        unitDataDic.value = Object.fromEntries(
-          Object.entries(json.unitData).map(([key, value]) => [key, new UnitData(value)])
+      if ('unit' in json)
+        unitDic.value = Object.fromEntries(
+          Object.entries(json.unit).map(([key, value]) => [key, new UnitData(value)])
         );
     }
 
     function clear () {
       initInsanity.value = '';
-      unitDataDic.value = {};
+      unitDic.value = {};
       sancDataArr.value.splice(0);
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());  
@@ -199,6 +330,19 @@ const rootApp = createApp({
       sancDataArr.value.splice(index, 0, deleteElement);
       dragIndex.value = index;
     };
+    const dragEnter2NameLabel = (index) => {
+      if (index === dragIndex.value) return;
+      const deleteElement = editUnitArr.value.splice(dragIndex.value, 1)[0];
+      editUnitArr.value.splice(index, 0, deleteElement);
+      if (index === editUnitIndex.value) {
+        if (dragIndex.value < index) editUnitIndex.value--;
+        else editUnitIndex.value++;
+      } else if (dragIndex.value === editUnitIndex.value) {
+        if (dragIndex.value < index) editUnitIndex.value++;
+        else editUnitIndex.value--;
+      }
+      dragIndex.value = index;
+    };
     const dragEnd = () => { dragIndex.value = null; };
 
 
@@ -209,8 +353,8 @@ const rootApp = createApp({
     
 
     // for test
-    unitDataDic.value['test unit 1'] = new UnitData({san:60, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
-    unitDataDic.value['test unit 2'] = new UnitData({san:0, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
+    unitDic.value['test unit 1'] = new UnitData({san:60, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
+    unitDic.value['test unit 2'] = new UnitData({san:0, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
 
 
 
@@ -229,15 +373,26 @@ const rootApp = createApp({
     return {
       setting,
       initInsanity,
-      allSanLoss,
-      unitDataDic,
-      unitData,
+
+      unitDic,
+      unit,
+      editUnitArr,
+      editUnitIndex,
+      editUnit,
+      startUnitEdit,
+      endUnitEdit,
+      addNewEditUnit,
+      deleteEditUnit,
+      importCcfolia,
+      
       sancDataArr,
       calcedArr,
+      allSanLoss,
 
       dragIndex,
       dragStart,
       dragEnter,
+      dragEnter2NameLabel,
       dragEnd,
 
       saveJson,

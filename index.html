@@ -39,11 +39,11 @@
           </label>
           <label>
             <input type="radio" value="get-sanc-list" v-model="setting.process" />
-            正気度喪失の記述を抽出
+            SANcを抽出
           </label>
           <label>
             <input type="radio" value="calc-evalue" v-model="setting.process" />
-            減少量の期待値を計算
+            減少量を試算
           </label>
         </div>
   
@@ -73,19 +73,19 @@
               <div class="new-mofism">
                 <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
                   <p class="title">キャラクター</p>
-                  <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="unit-edit-dialog">edit</button>
+                  <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="unit-edit-dialog" @click="startUnitEdit">edit</button>
                 </span>
-                <select v-model="setting.unitName" style="width: stretch;height: 1.5em;font-size: 1em;">
+                <select v-model="setting.unit" style="width: stretch;height: 1.5em;font-size: 1em;">
                   <option value=""></option>
-                  <option v-for="name in Object.keys(unitDataDic)" :value="name">{{name}}</option>
+                  <option v-for="name in Object.keys(unitDic)" :value="name">{{name}}</option>
                 </select>
-                <table class="test-table" style="font-size: 0.9em;">
+                <table class="skill-table" style="font-size: 0.9em;">
                   <tbody>
-                    <tr v-show="typeof(unitData.san)==='number'">
+                    <tr v-show="typeof(unit.san)==='number'">
                       <td>SAN</td>
-                      <td>{{unitData.san ?? null}}</td>
+                      <td>{{unit.san ?? null}}</td>
                     </tr>
-                    <tr v-for="[key, value] in Object.entries(unitData.skill)">
+                    <tr v-for="[key, value] in Object.entries(unit.skill)">
                       <td>{{key}}</td>
                       <td>{{value}}</td>
                     </tr>
@@ -106,11 +106,11 @@
                   <div :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
                 </div>
 
-                <button class="icon-frame" @click="addNewData">
+                <button class="icon-frame shadow" @click="addNewData">
                   <div class="icon icon-plus"></div>
                 </button>
 
-                <button class="icon-frame" @click="deleteLastData">
+                <button class="icon-frame shadow" @click="deleteLastData">
                   <div class="icon icon-minus"></div>
                 </button>
               </div>
@@ -196,7 +196,7 @@
                         <select class="long-input" v-model="sancData.preRoll.skill">
                           <option value=""></option>
                           <option value="else">（その他）</option>
-                          <option v-for="key in Object.keys(unitData.skill)" :value="key">{{key}}</option>
+                          <option v-for="key in Object.keys(unit.skill)" :value="key">{{key}}</option>
                         </select>
                         <input
                           type="text" 
@@ -220,7 +220,7 @@
                         <select class="long-input" v-model="sancData.altRoll.skill" :disabled="sancData.sancExDic.single">
                           <option value=""></option>
                           <option value="else">（その他）</option>
-                          <option v-for="key in Object.keys(unitData.skill)" :value="key">{{key}}</option>
+                          <option v-for="key in Object.keys(unit.skill)" :value="key">{{key}}</option>
                         </select>
                         <input 
                           type="text" 
@@ -310,27 +310,39 @@ Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights res
 PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
     </footer>
 
-    <dialog id="unit-edit-dialog" closedby="any">
+    <dialog id="unit-edit-dialog" closedby="any" @close="endUnitEdit">
       <header>
         <h2>キャラクターデータ編集</h2>
         <button-css-icon icon-name="icon-close" command="close" commandfor="unit-edit-dialog"></button-css-icon>
       </header>
       <section>
-        <div style="display: flex;gap: 1rem;">
-          <div style="display: flex;flex-direction: column;gap: 0.5rem;border-inline-end: 1px solid hsl(from currentColor h s l /0.5);padding-inline-end: 0.75rem;">
-            <label v-for="name in Object.keys(unitDataDic)">
-              <input type="radio" name="edit-unit-data" style="display: none;" />
-              {{name}}
+        <div style="display: flex;gap: 2rem;padding: 0.5rem 1rem;">
+          <div style="display: flex;flex-direction: column;gap: 0.5rem;">
+            <label v-for="(data,index) in editUnitArr" class="square-baloon-tag"
+              :class="{dragging: index === dragIndex}"
+              @dragstart="dragStart(index)"
+              @dragenter="dragEnter2NameLabel(index)"
+              @dragover.prevent
+              @dragend="dragEnd"
+              draggable="true"
+            >
+              <input type="radio" name="edit-unit-data" style="display: none;" :value="index" v-model="editUnitIndex" />
+              {{data.name || `(character ${data.id+1})`}}
+              <div class="icon icon-close float" @click.prevent="deleteEditUnit(index)"></div>
             </label>
-            <button class="icon-frame" style="align-self: center;">
+            <button class="light-square-button" @click="importCcfolia">ココフォリア駒から追加</button>
+            <button class="icon-frame shadow" style="align-self: center;" @click="addNewEditUnit">
               <div class="icon icon-plus"></div>
             </button>
           </div>
 
-          <div style="display: flex;flex-direction: column;gap: 0.75rem;">
-            <input type="text" placeholder="キャラクター名" />
-            <input type="number" placeholder="SAN値" />
-            <textarea placeholder="技能値"></textarea>
+          <div style="display: flex;flex-direction: column;font-size: calc(1em - 1px);">
+            名前
+            <input v-model="editUnit.name" type="text" :placeholder="`(character ${editUnit.id+1})`" style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" />
+            SAN値
+            <input v-model="editUnit.san" type="number" placeholder="0" style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" />
+            技能
+            <textarea v-model="editUnit.skillText" placeholder="目星  50" style="width: 12rem;height: 12rem;font-size: calc(1em + 1px);resize: block;"></textarea>
           </div>
         </div>
       </section>
@@ -341,25 +353,25 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
         <h2>保存データ</h2>
         <button-css-icon icon-name="icon-close" command="close" commandfor="save-json-dialog"></button-css-icon>
       </header>
-      <section>
+      <section style="width: fit-content;padding-inline: 1.5rem;">
         <div class="setting-wrapper">
           現在の設定
           <toggle-button :is-checked="setting.save.setting" @checked-toggle="val=>setting.save.setting=val"></toggle-button>
           SANcデータ
           <toggle-button :is-checked="setting.save.sancData" @checked-toggle="val=>setting.save.sancData=val"></toggle-button>
           キャラクターデータ
-          <toggle-button :is-checked="setting.save.unitData" @checked-toggle="val=>setting.save.unitData=val"></toggle-button>
+          <toggle-button :is-checked="setting.save.unit" @checked-toggle="val=>setting.save.unit=val"></toggle-button>
         </div>
 
-        <div class="setting-wrapper" style="margin-inline-start: 3ch;margin-block-start: 0.5rem;">
-          <template v-for="[name,data] in Object.entries(unitDataDic)">
+        <div class="setting-wrapper" :class="{disabled: !setting.save.unit}" style="margin-inline-start: 3ch;margin-block-start: 0.5rem;justify-self: end;">
+          <template v-for="[name,data] in Object.entries(unitDic)">
             {{name}}
             <toggle-button :is-checked="data.save" @checked-toggle="val=>data.save=val"></toggle-button>
           </template>
         </div>
       </section>
       <footer>
-        <button class="test-button" @click="saveJson">データを保存</button>
+        <button class="blue-square-button" @click="saveJson">データを保存</button>
       </footer>
     </dialog>
 
