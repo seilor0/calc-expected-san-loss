@@ -24,7 +24,7 @@ const rootApp = createApp({
       }
     });
 
-    const initInsanity = ref(0);
+    const initInsanity = ref('');
 
     const unitDataDic = ref({});
     const unitData = computed(() => unitDataDic.value[setting.value.unitName] ?? {skill:{}});
@@ -83,7 +83,7 @@ const rootApp = createApp({
     const sancDataArr = ref([]);
     const sanDataArr = computed(() => {
       const resultArr = [];
-      let remain = initInsanity.value;
+      let remain = initInsanity.value || 0;
       sancDataArr.value.forEach((sancData, i) => {
         if (!sancData.sancExDic) return;
 
@@ -165,7 +165,7 @@ const rootApp = createApp({
     }
 
     function clear () {
-      initInsanity.value = 0;
+      initInsanity.value = '';
       unitDataDic.value = {};
       sancDataArr.value.splice(0);
       sancDataArr.value.push(new SancData());
