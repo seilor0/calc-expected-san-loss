@@ -140,7 +140,7 @@ const rootApp = createApp({
       if (index < editUnitIndex.value) editUnitIndex.value--;
     }
     function importCcfolia () {
-      const ccfoliaText = window.prompt('ココフォリア駒を貼付');
+      const ccfoliaText = window.prompt('貼付け：ココフォリア駒 or チャパレテキスト');
       // id
       const newId = editUnitArr.value.length;
 

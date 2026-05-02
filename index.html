@@ -316,6 +316,10 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
       <section>
         <div style="display: flex;gap: 2rem;padding: 0.5rem 1rem;">
           <div style="display: flex;flex-direction: column;gap: 0.5rem;">
+            <div style="display: flex;gap: 0.5rem;padding-block-end: 0.5rem;">
+              <button class="light-square-button shadow" @click="addNewEditUnit">追加</button>  
+              <button class="light-square-button shadow" @click="importCcfolia">ココフォリア駒から</button>
+            </div>
             <label v-for="(data,index) in editUnitArr" class="square-baloon-tag"
               :class="{dragging: index===dragIndex && dragTarget==='editUnitArr'}"
               @dragstart="dragStart(index, 'editUnitArr')"
@@ -328,10 +332,6 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
               {{data.name || `(character ${data.id+1})`}}
               <div class="icon icon-close float" @click.prevent="deleteEditUnit(index)"></div>
             </label>
-            <button class="light-square-button shadow" @click="importCcfolia">ココフォリア駒から追加</button>
-            <button class="icon-frame shadow" style="align-self: center;" @click="addNewEditUnit">
-              <div class="icon icon-plus"></div>
-            </button>
           </div>
 
           <div style="display: flex;flex-direction: column;font-size: calc(1em - 1px);">
