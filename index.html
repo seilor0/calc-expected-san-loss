@@ -73,7 +73,7 @@
               <div class="new-mofism">
                 <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
                   <p class="title">キャラクター</p>
-                  <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="unit-edit-dialog" @click="startUnitEdit">edit</button>
+                  <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="edit-unit-dialog" @click="startUnitEdit">edit</button>
                 </span>
                 <select v-model="setting.unit" style="width: stretch;height: 1.5em;font-size: 1em;">
                   <option value=""></option>
@@ -96,12 +96,12 @@
 
             <div>
               <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
-                <div class="mini-card" style="width: 9rem;">
+                <div class="mini-card shadow" style="width: 9rem;">
                   <div>初期SAN値</div>
                   <input type="number" class="init-insanity" v-model="initInsanity" placeholder="0" />
                 </div>
                 
-                <div class="mini-card" style="width: 9rem;">
+                <div class="mini-card shadow" style="width: 9rem;">
                   <div>総減少量</div>
                   <div :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
                 </div>
@@ -156,18 +156,16 @@
                   <tr v-for="(sancData,index) in sancDataArr"
                     :key="index" 
                     draggable="true"
-                    :class="index === dragIndex ? 'dragging' : null"
-                    @dragstart="dragStart(index)"
+                    :class="{dragging: index===dragIndex && dragTarget==='sancDataArr'}"
+                    @dragstart="dragStart(index, 'sancDataArr')"
                     @dragenter="dragEnter(index)"
                     @dragover.prevent
                     @dragend="dragEnd"
                   >
                     <td>
                       <span class="cell-wrap">
+                        <div class="icon icon-close float" click="sancDataArr.splice(index,1)"></div>
                         <span class="material-symbols-outlined">drag_indicator</span>
-                        <div class="icon-frame delete-icon" @click="sancDataArr.splice(index,1)">
-                          <div class="icon icon-close"></div>
-                        </div>
                         <input 
                           type="text" 
                           v-model="sancData.sancText" 
@@ -310,17 +308,17 @@ Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights res
 PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
     </footer>
 
-    <dialog id="unit-edit-dialog" closedby="any" @close="endUnitEdit">
+    <dialog id="edit-unit-dialog" closedby="any" @close="endUnitEdit">
       <header>
         <h2>キャラクターデータ編集</h2>
-        <button-css-icon icon-name="icon-close" command="close" commandfor="unit-edit-dialog"></button-css-icon>
+        <button-css-icon icon-name="icon-close" command="close" commandfor="edit-unit-dialog"></button-css-icon>
       </header>
       <section>
         <div style="display: flex;gap: 2rem;padding: 0.5rem 1rem;">
           <div style="display: flex;flex-direction: column;gap: 0.5rem;">
             <label v-for="(data,index) in editUnitArr" class="square-baloon-tag"
-              :class="{dragging: index === dragIndex}"
-              @dragstart="dragStart(index)"
+              :class="{dragging: index===dragIndex && dragTarget==='editUnitArr'}"
+              @dragstart="dragStart(index, 'editUnitArr')"
               @dragenter="dragEnter2NameLabel(index)"
               @dragover.prevent
               @dragend="dragEnd"
@@ -330,7 +328,7 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
               {{data.name || `(character ${data.id+1})`}}
               <div class="icon icon-close float" @click.prevent="deleteEditUnit(index)"></div>
             </label>
-            <button class="light-square-button" @click="importCcfolia">ココフォリア駒から追加</button>
+            <button class="light-square-button shadow" @click="importCcfolia">ココフォリア駒から追加</button>
             <button class="icon-frame shadow" style="align-self: center;" @click="addNewEditUnit">
               <div class="icon icon-plus"></div>
             </button>

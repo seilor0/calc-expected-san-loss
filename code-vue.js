@@ -326,7 +326,11 @@ const rootApp = createApp({
 
     
     const dragIndex = ref(null);
-    const dragStart = (index) => { dragIndex.value = index; };
+    const dragTarget = ref('');
+    const dragStart = (index, target) => {
+      dragIndex.value = index;
+      dragTarget.value = target;
+    };
     const dragEnter = (index) => {
       if (index === dragIndex.value) return;
       const deleteElement = sancDataArr.value.splice(dragIndex.value, 1)[0];
@@ -346,7 +350,10 @@ const rootApp = createApp({
       }
       dragIndex.value = index;
     };
-    const dragEnd = () => { dragIndex.value = null; };
+    const dragEnd = () => {
+      dragIndex.value = null;
+      dragTarget.value = '';
+    };
 
 
     function addNewData () {sancDataArr.value.push(new SancData());}
@@ -393,6 +400,7 @@ const rootApp = createApp({
       allSanLoss,
 
       dragIndex,
+      dragTarget,
       dragStart,
       dragEnter,
       dragEnter2NameLabel,

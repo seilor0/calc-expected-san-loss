@@ -208,7 +208,6 @@ tr .material-symbols-outlined {
 @layer base {
   .mini-card {
     --main-color: var(--blue);
-    box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.2);
   }
 
   .toggle-button {
@@ -228,7 +227,6 @@ tr .material-symbols-outlined {
     border: 1px solid #7ec7d4;
     border-radius: 4px;
     padding: 6px;
-    box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.2);
     &:active {
       color: var(--offwhite);
       background-color: #9bd4de;
@@ -236,29 +234,24 @@ tr .material-symbols-outlined {
     }
   }
 
-  .icon-frame.delete-icon {
-    color: white;
-    background-color: rgb(0 0 0 / 0.2);
-    border-radius: 50%;
-    padding: 0.5rem;
-    
+  .icon.icon.icon-close.float {
     position: absolute;
-    right: calc(100% + 1.5rem);
-
     display: none;
-    td:hover &, &:hover, &:has(+ :hover) {display: block;}
 
-    .icon {--size: 0.75rem;}
-  }
-
-  .icon.float {
-    --size: 0.8rem;
-    --line-radius: 1.5px;
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    display: none;
-    label:hover & {display: block;}
+    .sanc-table & {
+      --size: calc(1rem - 2px);
+      opacity: 0.33;
+      right: calc(100% + 1.5rem);
+      td:hover &, &:hover, &:has(+ :hover) {display: block;}
+    }
+    #edit-unit-dialog & {
+      --size: 0.8rem;
+      --line-radius: 1.5px;
+      top: 8px;
+      right: 10px;
+      label:hover & {display: block;}
+      label:not(:has(:checked)) & {opacity: 0.33;}
+    }
   }
 }
 
@@ -444,6 +437,10 @@ tr .material-symbols-outlined {
     font-weight: 500;
   }
 
+  .shadow {
+    box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.2);
+  }
+
   .round {
     color: var(--blue);
     background: var(--offwhite);
@@ -454,17 +451,13 @@ tr .material-symbols-outlined {
     border-radius: 2.5rem;
     font-weight: 600;
 
-    &:hover {
-      text-decoration: underline;
-    }
-
+    &:hover {text-decoration: underline;}
     &:active, 
     &.blue {
       color: white;
       background: linear-gradient(90deg, #1a5bbd 60%, #1089d3 100%);
       border-color: white;
     }
-
     &.blue:active {
       color: var(--blue);
       background: var(--offwhite);
@@ -497,6 +490,9 @@ tr .material-symbols-outlined {
     font-weight: 500;
     user-select: none;
     padding: 0.25rem 0.5rem;
+    &:hover {
+      border-color: hsl(from currentColor h s l / 0.5);
+    }
     &:active {
       color: var(--blue);
       background-color: transparent;
