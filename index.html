@@ -47,215 +47,211 @@
           </label>
         </div>
   
-        <div>
-          <template v-if="setting.process==='home'"></template>
-  
-          <template v-else-if="setting.process==='get-sanc-list'"></template>
-  
-          <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 4rem;">
+        <div v-if="setting.process==='home'"></div>
 
-            <div style="display: flex;flex-direction: column;gap: 1rem;">
+        <div v-else-if="setting.process==='get-sanc-list'">
 
-              <div class="new-mofism">
-                <p class="title">オプション</p>
-                <div class="setting-wrapper">
-                  <span>自動成功</span>
-                  <toggle-button :is-checked="setting.options.autoSuccess" @checked-toggle="val=>setting.options.autoSuccess=val"></toggle-button>
-                  <span>○○成功でSANc</span>
-                  <toggle-button :is-checked="setting.options.preRoll" @checked-toggle="val=>setting.options.preRoll=val"></toggle-button>
-                  <span>SANc以外で判定</span>
-                  <toggle-button :is-checked="setting.options.altRoll" @checked-toggle="val=>setting.options.altRoll=val"></toggle-button>
-                  <span>実際の減少量を反映</span>
-                  <toggle-button :is-checked="setting.options.actLoss" @checked-toggle="val=>setting.options.actLoss=val"></toggle-button>
-                </div>
-              </div>
+        </div>
 
-              <div class="new-mofism">
-                <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
-                  <p class="title">キャラクター</p>
-                  <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="edit-unit-dialog" @click="startUnitEdit">edit</button>
-                </span>
-                <select v-model="setting.unit" style="width: stretch;height: 1.5em;font-size: 1em;">
-                  <option value=""></option>
-                  <option v-for="name in Object.keys(unitDic)" :value="name">{{name}}</option>
-                </select>
-                <table class="skill-table" style="font-size: 0.9em;">
-                  <tbody>
-                    <tr v-show="typeof(unit.san)==='number'">
-                      <td>SAN</td>
-                      <td>{{unit.san ?? null}}</td>
-                    </tr>
-                    <tr v-for="[key, value] in Object.entries(unit.skill)">
-                      <td>{{key}}</td>
-                      <td>{{value}}</td>
-                    </tr>
-                  </tbody>
-                </table>
+        <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 4rem;">
+
+          <div style="display: flex;flex-direction: column;gap: 1rem;">
+
+            <div class="new-mofism">
+              <p class="title">オプション</p>
+              <div class="setting-wrapper">
+                <span>自動成功</span>
+                <toggle-button :is-checked="setting.options.autoSuccess" @checked-toggle="val=>setting.options.autoSuccess=val"></toggle-button>
+                <span>○○成功でSANc</span>
+                <toggle-button :is-checked="setting.options.preRoll" @checked-toggle="val=>setting.options.preRoll=val"></toggle-button>
+                <span>SANc以外で判定</span>
+                <toggle-button :is-checked="setting.options.altRoll" @checked-toggle="val=>setting.options.altRoll=val"></toggle-button>
+                <span>実際の減少量を反映</span>
+                <toggle-button :is-checked="setting.options.actLoss" @checked-toggle="val=>setting.options.actLoss=val"></toggle-button>
               </div>
             </div>
 
-            <div>
-              <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
-                <div class="mini-card shadow" style="width: 9rem;">
-                  <div>初期SAN値</div>
-                  <input type="number" class="init-insanity" v-model="initInsanity" placeholder="0" />
-                </div>
-                
-                <div class="mini-card shadow" style="width: 9rem;">
-                  <div>総減少量</div>
-                  <div :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
-                </div>
-
-                <button class="icon-frame shadow" @click="addNewData">
-                  <div class="icon icon-plus"></div>
-                </button>
-
-                <button class="icon-frame shadow" @click="deleteLastData">
-                  <div class="icon icon-minus"></div>
-                </button>
-              </div>
-
-              <table class="sanc-table">
-                <thead>
-                  <tr>
-                    <th rowspan="2"></th>
-                    <th v-show="setting.options.autoSuccess" class="thin">
-                      オプション1<br>
-                      自動成功
-                    </th>
-                    <th v-show="setting.options.preRoll" colspan="2" class="thin">
-                      オプション2<br>
-                      判定に成功した場合のみSANc
-                    </th>
-                    <th v-show="setting.options.altRoll" colspan="2" class="thin">
-                      オプション3<br>
-                      SANc以外で判定
-                    </th>
-                    <th v-if="setting.options.actLoss" colspan="2" class="thin">
-                      オプション4<br>
-                      実際の値を反映
-                    </th>
-                    <th v-else rowspan="2">
-                      期待値
-                    </th>
-                    <th rowspan="2">
-                      残SAN
-                    </th>
-                  </tr>
-                  <tr>
-                    <th v-show="setting.options.autoSuccess"></th>
-                    <th v-show="setting.options.preRoll">判定</th>
-                    <th v-show="setting.options.preRoll">発生率</th>
-                    <th v-show="setting.options.altRoll">判定</th>
-                    <th v-show="setting.options.altRoll">判定値</th>
-                    <th v-if="setting.options.actLoss">期待値</th>
-                    <th v-show="setting.options.actLoss">実際</th>
-                  </tr>
-                </thead>
+            <div class="new-mofism">
+              <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
+                <p class="title">キャラクター</p>
+                <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="edit-unit-dialog" @click="startUnitEdit">edit</button>
+              </span>
+              <select v-model="setting.unit" style="width: stretch;height: 1.5em;font-size: 1em;">
+                <option value=""></option>
+                <option v-for="name in Object.keys(unitDic)" :value="name">{{name}}</option>
+              </select>
+              <table class="skill-table" style="font-size: 0.9em;">
                 <tbody>
-                  <tr v-for="(sancData,index) in sancDataArr"
-                    :key="index" 
-                    draggable="true"
-                    :class="{dragging: index===dragIndex && dragTarget==='sancDataArr'}"
-                    @dragstart="dragStart(index, 'sancDataArr')"
-                    @dragenter="dragEnter(index)"
-                    @dragover.prevent
-                    @dragend="dragEnd"
-                  >
-                    <td>
-                      <span class="cell-wrap">
-                        <div class="icon icon-close float" click="sancDataArr.splice(index,1)"></div>
-                        <span class="material-symbols-outlined">drag_indicator</span>
-                        <input 
-                          type="text" 
-                          v-model="sancData.sancText" 
-                          placeholder="1d10/1d100, 1d6" 
-                          class="long-input" 
-                          style="font-size: unset;" 
-                        />
-                        <button-tag 
-                          :is-checked="sancData.isPlus" 
-                          @checked-toggle="val=>sancData.isPlus=val" 
-                          text-checked="回復" text-not-checked="減少"
-                        ></button-tag>
-                      </span>
-                    </td>
-
-                    <td v-show="setting.options.autoSuccess" class="pad-inline">
-                      <select v-model="sancData.autoSuccess">
-                        <option value=""></option>
-                        <option value="success">自動成功</option>
-                        <option value="fail"   >自動失敗</option>
-                      </select>
-                    </td>
-  
-                    <td v-show="setting.options.preRoll">
-                      <span class="cell-wrap">
-                        <select class="long-input" v-model="sancData.preRoll.skill">
-                          <option value=""></option>
-                          <option value="else">（その他）</option>
-                          <option v-for="key in Object.keys(unit.skill)" :value="key">{{key}}</option>
-                        </select>
-                        <input
-                          type="text" 
-                          v-model="sancData.preRoll.adjustment" 
-                          placeholder="+0" 
-                          class="short-input" 
-                        />
-                        <button-tag 
-                          :is-checked="sancData.preRoll.isFail" 
-                          @checked-toggle="val=>sancData.preRoll.isFail=val" 
-                          text-checked="失敗" text-not-checked="成功"
-                        ></button-tag>
-                      </span>
-                    </td>
-                    <td v-show="setting.options.preRoll" class="center pad-inline">
-                      {{calcedArr[index].preRoll===null ? null : floatRound(calcedArr[index].preRoll, 2)}}
-                    </td>
-                    
-                    <td v-show="setting.options.altRoll">
-                      <span class="cell-wrap">
-                        <select class="long-input" v-model="sancData.altRoll.skill" :disabled="sancData.sancExDic.single">
-                          <option value=""></option>
-                          <option value="else">（その他）</option>
-                          <option v-for="key in Object.keys(unit.skill)" :value="key">{{key}}</option>
-                        </select>
-                        <input 
-                          type="text" 
-                          v-model="sancData.altRoll.adjustment" 
-                          placeholder="+0" 
-                          class="short-input" 
-                          :disabled="sancData.sancExDic.single"
-                        />
-                      </span>
-                    </td>
-                    <td v-show="setting.options.altRoll" class="center pad-inline">
-                      {{calcedArr[index].altRoll===null ? null : floatRound(calcedArr[index].altRoll, 2)}}
-                    </td>
-                    
-                    <td class="center pad-inline">
-                      {{floatRound(calcedArr[index].lossEx, 2)}}
-                    </td>
-                    <td v-show="setting.options.actLoss">
-                      <input 
-                        type="number" 
-                        v-model="sancData.actLoss" 
-                        placeholder="0" 
-                        class="short-input" 
-                      />
-                    </td>
-  
-                    <td class="center pad-inline">
-                      {{floatRound(calcedArr[index].remainSan, 2)}}
-                    </td>
+                  <tr v-show="typeof(unit.san)==='number'">
+                    <td>SAN</td>
+                    <td>{{unit.san ?? null}}</td>
+                  </tr>
+                  <tr v-for="[key, value] in Object.entries(unit.skill)">
+                    <td>{{key}}</td>
+                    <td>{{value}}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
-          
-        </div>
 
+          <div>
+            <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
+              <div class="mini-card shadow" style="width: 9rem;">
+                <div>初期SAN値</div>
+                <input type="number" class="init-insanity" v-model="initInsanity" placeholder="0" />
+              </div>
+              
+              <div class="mini-card shadow" style="width: 9rem;">
+                <div>総減少量</div>
+                <div :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
+              </div>
+
+              <button class="icon-frame shadow" @click="addNewData">
+                <div class="icon icon-plus"></div>
+              </button>
+
+              <button class="icon-frame shadow" @click="deleteLastData">
+                <div class="icon icon-minus"></div>
+              </button>
+            </div>
+
+            <table class="sanc-table">
+              <thead>
+                <tr>
+                  <th rowspan="2"></th>
+                  <th v-show="setting.options.autoSuccess" class="thin">
+                    オプション1<br>
+                    自動成功
+                  </th>
+                  <th v-show="setting.options.preRoll" colspan="2" class="thin">
+                    オプション2<br>
+                    判定に成功した場合のみSANc
+                  </th>
+                  <th v-show="setting.options.altRoll" colspan="2" class="thin">
+                    オプション3<br>
+                    SANc以外で判定
+                  </th>
+                  <th v-if="setting.options.actLoss" colspan="2" class="thin">
+                    オプション4<br>
+                    実際の値を反映
+                  </th>
+                  <th v-else rowspan="2">
+                    期待値
+                  </th>
+                  <th rowspan="2">
+                    残SAN
+                  </th>
+                </tr>
+                <tr>
+                  <th v-show="setting.options.autoSuccess"></th>
+                  <th v-show="setting.options.preRoll">判定</th>
+                  <th v-show="setting.options.preRoll">発生率</th>
+                  <th v-show="setting.options.altRoll">判定</th>
+                  <th v-show="setting.options.altRoll">判定値</th>
+                  <th v-if="setting.options.actLoss">期待値</th>
+                  <th v-show="setting.options.actLoss">実際</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(sancData,index) in sancDataArr"
+                  :key="index" 
+                  draggable="true"
+                  :class="{dragging: index===dragIndex && dragTarget==='sancDataArr'}"
+                  @dragstart="dragStart(index, 'sancDataArr')"
+                  @dragenter="dragEnter(index)"
+                  @dragover.prevent
+                  @dragend="dragEnd"
+                >
+                  <td>
+                    <span class="cell-wrap">
+                      <div class="icon icon-close float" click="sancDataArr.splice(index,1)"></div>
+                      <span class="material-symbols-outlined">drag_indicator</span>
+                      <input 
+                        type="text" 
+                        v-model="sancData.sancText" 
+                        placeholder="1d10/1d100, 1d6" 
+                        class="long-input" 
+                        style="font-size: unset;" 
+                      />
+                      <button-tag 
+                        :is-checked="sancData.isPlus" 
+                        @checked-toggle="val=>sancData.isPlus=val" 
+                        text-checked="回復" text-not-checked="減少"
+                      ></button-tag>
+                    </span>
+                  </td>
+
+                  <td v-show="setting.options.autoSuccess" class="pad-inline">
+                    <select v-model="sancData.autoSuccess">
+                      <option value=""></option>
+                      <option value="success">自動成功</option>
+                      <option value="fail"   >自動失敗</option>
+                    </select>
+                  </td>
+
+                  <td v-show="setting.options.preRoll">
+                    <span class="cell-wrap">
+                      <select class="long-input" v-model="sancData.preRoll.skill">
+                        <option value=""></option>
+                        <option value="else">（その他）</option>
+                        <option v-for="key in Object.keys(unit.skill)" :value="key">{{key}}</option>
+                      </select>
+                      <input
+                        type="text" 
+                        v-model="sancData.preRoll.adjustment" 
+                        placeholder="+0" 
+                        class="short-input" 
+                      />
+                      <button-tag 
+                        :is-checked="sancData.preRoll.isFail" 
+                        @checked-toggle="val=>sancData.preRoll.isFail=val" 
+                        text-checked="失敗" text-not-checked="成功"
+                      ></button-tag>
+                    </span>
+                  </td>
+                  <td v-show="setting.options.preRoll" class="center pad-inline">
+                    {{calcedArr[index].preRoll===null ? null : floatRound(calcedArr[index].preRoll, 2)}}
+                  </td>
+                  
+                  <td v-show="setting.options.altRoll">
+                    <span class="cell-wrap" :class="{disabled: sancData.sancExDic.single}">
+                      <select class="long-input" v-model="sancData.altRoll.skill">
+                        <option value=""></option>
+                        <option value="else">（その他）</option>
+                        <option v-for="key in Object.keys(unit.skill)" :value="key">{{key}}</option>
+                      </select>
+                      <input 
+                        type="text" 
+                        v-model="sancData.altRoll.adjustment" 
+                        placeholder="+0" 
+                        class="short-input" />
+                    </span>
+                  </td>
+                  <td v-show="setting.options.altRoll" class="center pad-inline">
+                    {{calcedArr[index].altRoll===null ? null : floatRound(calcedArr[index].altRoll, 2)}}
+                  </td>
+                  
+                  <td class="center pad-inline">
+                    {{floatRound(calcedArr[index].lossEx, 2)}}
+                  </td>
+                  <td v-show="setting.options.actLoss">
+                    <input 
+                      type="number" 
+                      v-model="sancData.actLoss" 
+                      placeholder="0" 
+                      class="short-input" 
+                    />
+                  </td>
+
+                  <td class="center pad-inline">
+                    {{floatRound(calcedArr[index].remainSan, 2)}}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
     </main>
@@ -328,7 +324,13 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
               @dragend="dragEnd"
               draggable="true"
             >
-              <input type="radio" name="edit-unit-data" style="display: none;" :value="index" v-model="editUnitIndex" />
+              <input 
+                type="radio" 
+                name="edit-unit-data" 
+                :value="index" 
+                v-model="editUnitIndex" 
+                style="display: none;" 
+              />
               {{data.name || `(character ${data.id+1})`}}
               <div class="icon icon-close float" @click.prevent="deleteEditUnit(index)"></div>
             </label>
@@ -336,9 +338,19 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
 
           <div style="display: flex;flex-direction: column;font-size: calc(1em - 1px);">
             名前
-            <input v-model="editUnit.name" type="text" :placeholder="`(character ${editUnit.id+1})`" style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" />
+            <input 
+              type="text" 
+              :placeholder="`(character ${editUnit.id+1 || '--'})`" 
+              v-model="editUnit.name" 
+              style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" 
+            />
             SAN値
-            <input v-model="editUnit.san" type="number" placeholder="0" style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" />
+            <input 
+              type="number" 
+              placeholder="0" 
+              v-model="editUnit.san" 
+              style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" 
+            />
             技能
             <textarea v-model="editUnit.skillText" placeholder="目星  50" style="width: 12rem;height: 12rem;font-size: calc(1em + 1px);resize: block;"></textarea>
           </div>

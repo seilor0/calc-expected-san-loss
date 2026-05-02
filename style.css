@@ -191,7 +191,7 @@ tr .material-symbols-outlined {
 @layer state {
   .red {
     color: #ed1212;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .dragging {

@@ -66,8 +66,6 @@ const rootApp = createApp({
         }
       }
     }
-
-
     const setting = ref({
       process: 'calc-evalue',
       unit: '',
@@ -84,12 +82,20 @@ const rootApp = createApp({
       }
     });
 
+
+    // --------------------------
+    // PAGE : calc sanc e-value
+    // --------------------------
     const initInsanity = ref('');
 
     const unitDic = ref({});
     const unit = computed(() => unitDic.value[setting.value.unit] ?? new UnitData());
     watch(unit, (newData)=>{if (typeof(newData.san)==='number') initInsanity.value = newData.san;});
+    function addNewData () {sancDataArr.value.push(new SancData());}
+    function deleteLastData() {sancDataArr.value.pop();}
 
+
+    // FEATURE : edit unit data
     const editUnitArr = ref([]);
     const editUnitIndex = ref(0);
     const editUnit = computed(()=>editUnitArr.value[editUnitIndex.value] ?? {name:'', san:'', skillText:''});
@@ -113,20 +119,19 @@ const rootApp = createApp({
       unitIndex = null;
       // ユニットデータへエクスポート
       unitDic.value = Object.fromEntries(
-        editUnitArr.value
-          .filter(dic=>dic.name)
-          .map(dic => {
-            const skillArr = [];
-            dic.skillText
-              .split('\n')
-              .filter(Boolean)
-              .forEach(row => {
-                const {skill, value} = row.match(/(?<skill>.+)\b(?<value>\d+)$/)?.groups ?? {};
-                if (!skill) return;
-                skillArr.push([skill.trim(), parseFloat(value)]);
-              });
-            return [dic.name, new UnitData({save: dic.save, san: dic.san, skill:Object.fromEntries(skillArr)})];
-          })
+        editUnitArr.value.map(dic => {
+          const name = dic.name || `character ${dic.id+1}`;
+          const skillArr = [];
+          dic.skillText
+            .split('\n')
+            .filter(Boolean)
+            .forEach(row => {
+              const {skill, value} = row.match(/(?<skill>.+)\b(?<value>\d+)$/)?.groups ?? {};
+              if (!skill) return;
+              skillArr.push([skill.trim(), parseFloat(value)]);
+            });
+          return [name, new UnitData({save: dic.save, san: dic.san, skill:Object.fromEntries(skillArr)})];
+        })
       );
       // 編集用データをクリア
       editUnitArr.value.splice(0);
@@ -175,26 +180,27 @@ const rootApp = createApp({
       }
       function chatpalette2arr (commandText) {
         const resultArr = [];
-
         [
           [/^.*<=\{.*\}.*$/mg, ''], 
           [/　/g, ' '],
           [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
           [new RegExp(`[「」『』【】〈〉\\[\\]《》≪≫]`, 'g'), ''],
+          [/^(?:x|rep|repeat)\d+ */mgi, ''] // 複数回ロール
         ]
           .reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), commandText)
           .split('\n')
           .filter(Boolean)
           .forEach(base => {
             const dic = {name: '', value: null};
-            // 複数回ロール
-            if (/^(?:x|rep|repeat)\d+/i.test(base)) base = base.replace(/(?:x|rep|repeat)\d+ */i, '');
+            // // 複数回ロール
+            // if (/^(?:x|rep|repeat)\d+/i.test(base)) base = base.replace(/(?:x|rep|repeat)\d+ */i, '');
 
             // 組み合わせロール
             if (/CBR/i.test(base)) {
               const {val, val1, val2} = base.match(/(?<val>CBRB?\D*(?<val1>\d+)\D+(?<val2>\d+)\)?)/i)?.groups || {};
               if (!val1 || !val2) return;
               const name = base.replace(val, '').trim();
+              if (!name) return;
               const targetValue = Math.min(parseInt(val1), parseInt(val2));
               dic.name = name;
               dic.value = targetValue;
@@ -222,7 +228,6 @@ const rootApp = createApp({
         return resultArr;
       }
     }
-
 
     const sancDataArr = ref([]);
     const calcedArr = computed(() => {
@@ -282,51 +287,7 @@ const rootApp = createApp({
     const allSanLoss = computed(() => {return calcedArr.value.length ? initInsanity.value - calcedArr.value.at(-1).remainSan : 0;});
 
 
-    function saveJson () {
-      const json = {};
-      if (setting.value.save.setting) json.setting = setting.value;
-      if (setting.value.save.sancData) json.sancData = sancDataArr.value;
-      if (setting.value.save.unit) {
-        json.unit = Object.fromEntries(
-          Object.entries(unitDic.value).filter(([key, value])=>value.save)
-        );
-      }
-      const jsonString = JSON.stringify(json);
-
-      // save
-      const blob = new Blob([jsonString], {type:'text/plain'});
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      const date = new Date();
-      const dateText = `${date.getFullYear()}-${String(date.getMonth()).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}-${String(date.getHours()).padStart(2,'0')}${String(date.getMinutes()).padStart(2,'0')}`;
-
-      link.download = `sancdata-${dateText}.json`;
-      link.click();
-    }
-
-    async function loadJson (e) {
-      const file = e.currentTarget.files[0];
-      if (!file) return;
-      e.currentTarget.value = null;
-      const json = JSON.parse(await file.text());
-
-      if ('setting' in json) setting.value = structuredClone(json.setting);
-      if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(data));
-      if ('unit' in json)
-        unitDic.value = Object.fromEntries(
-          Object.entries(json.unit).map(([key, value]) => [key, new UnitData(value)])
-        );
-    }
-
-    function clear () {
-      initInsanity.value = '';
-      unitDic.value = {};
-      sancDataArr.value.splice(0);
-      sancDataArr.value.push(new SancData());
-      sancDataArr.value.push(new SancData());  
-    }
-
-    
+    // FEATURE : swith data
     const dragIndex = ref(null);
     const dragTarget = ref('');
     const dragStart = (index, target) => {
@@ -358,13 +319,62 @@ const rootApp = createApp({
     };
 
 
-    function addNewData () {sancDataArr.value.push(new SancData());}
-    function deleteLastData() {sancDataArr.value.pop();}
+    // --------------------------
+    // PAGE : get sanc list
+    // --------------------------
     
+
+
+    // --------------------------
+    // WHOLE feature
+    // --------------------------
+    function saveJson () {
+      const json = {};
+      if (setting.value.save.setting) json.setting = setting.value;
+      if (setting.value.save.sancData) json.sancData = sancDataArr.value;
+      if (setting.value.save.unit) {
+        json.unit = Object.fromEntries(
+          Object.entries(unitDic.value).filter(([key, value])=>value.save)
+        );
+      }
+      const jsonString = JSON.stringify(json);
+
+      // save
+      const blob = new Blob([jsonString], {type:'text/plain'});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      const date = new Date();
+      const dateText = `${date.getFullYear()}-${String(date.getMonth()).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}-${String(date.getHours()).padStart(2,'0')}${String(date.getMinutes()).padStart(2,'0')}`;
+
+      link.download = `sancdata-${dateText}.json`;
+      link.click();
+    }
+    async function loadJson (e) {
+      const file = e.currentTarget.files[0];
+      if (!file) return;
+      e.currentTarget.value = null;
+      const json = JSON.parse(await file.text());
+
+      if ('setting' in json) setting.value = structuredClone(json.setting);
+      if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(data));
+      if ('unit' in json)
+        unitDic.value = Object.fromEntries(
+          Object.entries(json.unit).map(([key, value]) => [key, new UnitData(value)])
+        );
+    }
+    function clear () {
+      initInsanity.value = '';
+      unitDic.value = {};
+      sancDataArr.value.splice(0);
+      sancDataArr.value.push(new SancData());
+      sancDataArr.value.push(new SancData());  
+    }
     function clickNextInput(e) {e.currentTarget.nextElementSibling?.click();}
     
 
-    // for test
+    // --------------------------
+    // TEST
+    // --------------------------
     unitDic.value['test unit 1'] = new UnitData({san:60, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
     unitDic.value['test unit 2'] = new UnitData({san:0, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
 
@@ -375,7 +385,6 @@ const rootApp = createApp({
       setting.value = json.setting;
       document.querySelector('footer table tbody').innerHTML = json.changeLog
       .reduce((acc, cur) => acc += `<tr><td>${cur.date}</td><td>${cur.version}</td><td>${cur.detail}</td></tr>`, '');
-
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());
     })
