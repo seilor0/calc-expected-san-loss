@@ -49,8 +49,33 @@
   
         <div v-if="setting.process==='home'"></div>
 
-        <div v-else-if="setting.process==='get-sanc-list'">
-
+        <div v-else-if="setting.process==='get-sanc-list'" style="padding: 2rem 3rem;">
+          <div style="display: flex;justify-content: flex-end;margin-block-end: 1rem;">
+            <button class="blue-square-button shadow" @click="importSancList">試算ページへコピー</button>
+          </div>
+          <div style="display: flex;gap: 1.5rem;">
+            <textarea v-model="scenarioText" placeholder="シナリオテキストを貼り付け" style="width: 40ch;height: 10rem;"></textarea>
+            <div class="triangle"></div>
+            <div>
+              <table class="skill-table">
+                <tbody>
+                  <tr v-for="dic in sancList.flat()">
+                    <td>{{dic.id+1}}</td>
+                    <td>
+                      {{dic.sancText}}
+                    </td>
+                    <td>
+                      <button-tag 
+                        :is-checked="dic.isPlus" 
+                        @checked-toggle="val=>dic.isPlus=val" 
+                        text-checked="回復" text-not-checked="減少"
+                      ></button-tag>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         <div v-else-if="setting.process==='calc-evalue'" style="padding: 2rem 3rem;display: flex;gap: 4rem;">

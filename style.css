@@ -441,6 +441,15 @@ tr .material-symbols-outlined {
     box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.2);
   }
 
+  .triangle {
+    background-color: currentColor;
+    align-self: center;
+    height: 1rem;
+    aspect-ratio: cos(30deg);
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    opacity: 0.33;
+  }
+
   .round {
     color: var(--blue);
     background: var(--offwhite);
@@ -467,7 +476,7 @@ tr .material-symbols-outlined {
 
   .blue-square-button {
     color: white;
-    background-color: var(--blue);
+    background: linear-gradient(90deg, #1a5bbd 60%, #1089d3 100%);
     border: 1px solid transparent;
     border-radius: 4px;
     font-family: unset;
@@ -476,7 +485,7 @@ tr .material-symbols-outlined {
 
     &:active {
       color: var(--blue);
-      background-color: transparent;
+      background: transparent;
       border-color: var(--blue);
     }
   }

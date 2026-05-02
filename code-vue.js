@@ -1,7 +1,7 @@
 import ButtonCssIcon from "./components/button-css-icon.js";
 import ButtonTag from "./components/button-tag.js";
 import ToggleButton from "./components/toggle-button.js";
-import { clamp, floatRound, applyAdjustment } from "../__utility/function.js";
+import { clamp, floatRound, applyAdjustment, clickNextInput } from "../__utility/function.js";
 
 const {createApp, ref, computed, watch, onMounted, toRaw} = Vue;
 
@@ -79,6 +79,10 @@ const rootApp = createApp({
         setting: true,
         sancData: true,
         unit: true,
+      },
+      getSancList: {
+        preChar: '',
+        nextChar: '',
       }
     });
 
@@ -322,6 +326,69 @@ const rootApp = createApp({
     // --------------------------
     // PAGE : get sanc list
     // --------------------------
+    const scenarioText = ref('');
+    const sancList = ref([]); // {id, sancText, isPlus, {line, char}}
+
+    const sancRegArr = ref([]);
+    class SancReg {
+      constructor ({
+        sample = '',
+        single = false,
+        isPlus = false,
+        befText = '',
+        afterText = '',
+      }={}) {
+
+      }
+    }
+
+    watch(scenarioText, (newText, oldText) => {
+      const searchReg = /SANc[\(/→＜]*[+D\d]+\/[+D\d]+/gi;
+      const matchReg = /SANc[\(/→＜]*([+D\d]+\/[+D\d]+)/gi;
+      const isPlusReg = /SANc[\(/→＜]*[+D\d]+\/[+D\d]+/gi;
+
+      const newArr = newText.split('\n').filter(Boolean);
+      const oldArr = oldText.split('\n').filter(Boolean);
+
+      let id = 0;
+      // use old arr
+      if (newArr.length < oldArr.length) {
+        sancList.value.splice(newArr.length);
+      } else {
+        sancList.value.length = newArr.length;
+        sancList.value.fill([], oldArr.length);
+      }
+      // sancList.value.splice(0);
+      // console.log(structuredClone(toRaw(sancList.value)));
+
+      newArr.forEach((row,index) => {
+        // 行の変化なし --> 更新しない
+        if (row===oldArr[index]) return;
+        
+        const matchArr = [...row.matchAll(matchReg)];
+        // [
+        //   0:whole-matched, 
+        //   1~:matched, 
+        //   groups:{}, 
+        //   index:start-string-index, 
+        //   input:base
+        //   length
+        // ] []
+
+        const childArr = matchArr.map(match => {
+          const sancText = match[1];
+          const isPlus = isPlusReg.test(match.input);
+          return {id:id++, sancText:sancText, isPlus:isPlus};
+        });
+        sancList.value[index] = childArr;
+        // sancList.value.push(childArr);
+      });
+    });
+
+    function importSancList() {
+      sancDataArr.value = sancList.value.flat().map(dic => new SancData({sancText:dic.sancText, isPlus:dic.isPlus}));
+      setting.value.process = 'calc-evalue';
+    }
     
 
 
@@ -369,7 +436,6 @@ const rootApp = createApp({
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());  
     }
-    function clickNextInput(e) {e.currentTarget.nextElementSibling?.click();}
     
 
     // --------------------------
@@ -393,10 +459,15 @@ const rootApp = createApp({
 
     return {
       setting,
+
+      // PAGE : calc sanc e-value
       initInsanity,
 
       unitDic,
       unit,
+      addNewData,
+      deleteLastData,
+
       editUnitArr,
       editUnitIndex,
       editUnit,
@@ -417,12 +488,17 @@ const rootApp = createApp({
       dragEnter2NameLabel,
       dragEnd,
 
+      // PAGE : get sanc list
+      scenarioText,
+      sancList,
+      importSancList,
+
+      // WHOLE feature
       saveJson,
       loadJson,
       clear,
 
-      addNewData,
-      deleteLastData,
+      // FUNCTION
       clickNextInput,
       floatRound,
     }
