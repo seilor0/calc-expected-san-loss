@@ -133,6 +133,7 @@ const rootApp = createApp({
       editUnitIndex.value = 0;
     }
     function addNewEditUnit () {
+      editUnitIndex.value = editUnitArr.value.length;
       editUnitArr.value.push({ id: editUnitArr.value.length, name: '', san: '', skillText: '' });
     }
     function deleteEditUnit (index) {
@@ -143,6 +144,7 @@ const rootApp = createApp({
       const ccfoliaText = window.prompt('貼付け：ココフォリア駒 or チャパレテキスト');
       // id
       const newId = editUnitArr.value.length;
+      editUnitIndex.value = newId;
 
       // コマテキスト
       if (ccfoliaText.startsWith('{')) {
