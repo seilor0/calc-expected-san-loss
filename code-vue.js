@@ -66,6 +66,28 @@ const rootApp = createApp({
         }
       }
     }
+    class SancRegData {
+      constructor ({
+        sample = '',
+        single = false,
+        isPlus = false,
+        preText = '',
+        nextText = '',
+      }={}) {
+        this.sample = sample;
+        this.single = single;
+        this.isPlus = isPlus;
+        this.preText = preText;
+        this.nextText = nextText;
+      }
+      get regString() {
+        let text = this.preText ? `${this.preText}[${setting.value.getSancList.preChar}]*` : '';
+        const diceString = '\\d[+D\\d]*';
+        text += this.single ? `(?<sancText>${diceString})` : `(?<sancText>${diceString}\\/${diceString})`;
+        if (this.nextText) text += `[${setting.value.getSancList.nextChar}]*${this.nextText}`;
+        return text;
+      }
+    }
     const setting = ref({
       process: 'calc-evalue',
       unit: '',
@@ -291,38 +313,6 @@ const rootApp = createApp({
     const allSanLoss = computed(() => {return calcedArr.value.length ? initInsanity.value - calcedArr.value.at(-1).remainSan : 0;});
 
 
-    // FEATURE : swith data
-    const dragIndex = ref(null);
-    const dragTarget = ref('');
-    const dragStart = (index, target) => {
-      dragIndex.value = index;
-      dragTarget.value = target;
-    };
-    const dragEnter = (index) => {
-      if (index === dragIndex.value) return;
-      const deleteElement = sancDataArr.value.splice(dragIndex.value, 1)[0];
-      sancDataArr.value.splice(index, 0, deleteElement);
-      dragIndex.value = index;
-    };
-    const dragEnter2NameLabel = (index) => {
-      if (index === dragIndex.value) return;
-      const deleteElement = editUnitArr.value.splice(dragIndex.value, 1)[0];
-      editUnitArr.value.splice(index, 0, deleteElement);
-      if (index === editUnitIndex.value) {
-        if (dragIndex.value < index) editUnitIndex.value--;
-        else editUnitIndex.value++;
-      } else if (dragIndex.value === editUnitIndex.value) {
-        if (dragIndex.value < index) editUnitIndex.value++;
-        else editUnitIndex.value--;
-      }
-      dragIndex.value = index;
-    };
-    const dragEnd = () => {
-      dragIndex.value = null;
-      dragTarget.value = '';
-    };
-
-
     // --------------------------
     // PAGE : get sanc list
     // --------------------------
@@ -330,60 +320,55 @@ const rootApp = createApp({
     const sancList = ref([]); // {id, sancText, isPlus, {line, char}}
 
     const sancRegArr = ref([]);
-    class SancReg {
-      constructor ({
-        sample = '',
-        single = false,
-        isPlus = false,
-        befText = '',
-        afterText = '',
-      }={}) {
-
-      }
-    }
+    function addNewRegData() {sancRegArr.value.push(new SancRegData());}
+    function deleteLastRegData() {sancRegArr.value.pop();}
 
     watch(scenarioText, (newText, oldText) => {
-      const searchReg = /SANc[\(/→＜]*[+D\d]+\/[+D\d]+/gi;
-      const matchReg = /SANc[\(/→＜]*([+D\d]+\/[+D\d]+)/gi;
-      const isPlusReg = /SANc[\(/→＜]*[+D\d]+\/[+D\d]+/gi;
-
-      const newArr = newText.split('\n').filter(Boolean);
-      const oldArr = oldText.split('\n').filter(Boolean);
-
-      let id = 0;
-      // use old arr
-      if (newArr.length < oldArr.length) {
-        sancList.value.splice(newArr.length);
-      } else {
-        sancList.value.length = newArr.length;
-        sancList.value.fill([], oldArr.length);
-      }
-      // sancList.value.splice(0);
-      // console.log(structuredClone(toRaw(sancList.value)));
-
-      newArr.forEach((row,index) => {
-        // 行の変化なし --> 更新しない
-        if (row===oldArr[index]) return;
-        
-        const matchArr = [...row.matchAll(matchReg)];
-        // [
-        //   0:whole-matched, 
-        //   1~:matched, 
-        //   groups:{}, 
-        //   index:start-string-index, 
-        //   input:base
-        //   length
-        // ] []
-
-        const childArr = matchArr.map(match => {
-          const sancText = match[1];
-          const isPlus = isPlusReg.test(match.input);
-          return {id:id++, sancText:sancText, isPlus:isPlus};
-        });
-        sancList.value[index] = childArr;
-        // sancList.value.push(childArr);
-      });
+      scenarioText.value = [
+        [/[　 ]/g, ''],
+        [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
+      ].reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), newText);
+      extractSanc(false, newText, oldText);
     });
+    watch(sancRegArr, () => extractSanc(true, scenarioText.value), {deep:true});
+    watch([
+      ()=>setting.value.getSancList.preChar, 
+      ()=>setting.value.getSancList.nextChar
+    ], () => extractSanc(true, scenarioText.value));
+
+    function extractSanc(regIsChange=false, newText, oldText='') {
+      const matchReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'gi');
+      const testReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'i');
+      const isPlusReg = new RegExp(sancRegArr.value.filter(reg=>reg.isPlus).map(reg=>reg.regString).join('|'),'i');
+      const newArr = newText.split('\n').filter(Boolean);
+
+      if (!oldText || regIsChange) {
+        sancList.value = newArr.map(row => extract(row));
+
+      } else {
+        const oldArr = oldText.split('\n').filter(Boolean);
+        if (newArr.length < oldArr.length) {
+          sancList.value.splice(newArr.length);
+        } else if (newArr.length > oldArr.length) {
+          sancList.value.length = newArr.length;
+          sancList.value.fill([], oldArr.length);
+        }
+        newArr.forEach((row,index) => {
+          if (row===oldArr[index]) return;
+          sancList.value[index] = extract(row);
+        });
+      }
+      function extract(string) {
+        if (!testReg.test(string)) return [];
+        const matchArr = [...string.matchAll(matchReg)];
+        const childArr = matchArr.map(match => {
+          const {sancText} = match.groups;
+          const isPlus = isPlusReg.test(match[0]);
+          return {sancText:sancText, isPlus:isPlus, base:string};
+        });
+        return childArr;
+      }
+    }
 
     function importSancList() {
       sancDataArr.value = sancList.value.flat().map(dic => new SancData({sancText:dic.sancText, isPlus:dic.isPlus}));
@@ -436,6 +421,38 @@ const rootApp = createApp({
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());  
     }
+
+    // FEATURE : swith data
+    const dragIndex = ref(null);
+    const dragTarget = ref('');
+    const dragStart = (index, target) => {
+      dragIndex.value = index;
+      dragTarget.value = target;
+    };
+    const dragEnter = (index) => {
+      if (index === dragIndex.value) return;
+      const target = dragTarget.value==='sancDataArr' ? sancDataArr.value : sancRegArr.value;
+      const deleteElement = target.splice(dragIndex.value, 1)[0];
+      target.splice(index, 0, deleteElement);
+      dragIndex.value = index;
+    };
+    const dragEnter2NameLabel = (index) => {
+      if (index === dragIndex.value) return;
+      const deleteElement = editUnitArr.value.splice(dragIndex.value, 1)[0];
+      editUnitArr.value.splice(index, 0, deleteElement);
+      if (index === editUnitIndex.value) {
+        if (dragIndex.value < index) editUnitIndex.value--;
+        else editUnitIndex.value++;
+      } else if (dragIndex.value === editUnitIndex.value) {
+        if (dragIndex.value < index) editUnitIndex.value++;
+        else editUnitIndex.value--;
+      }
+      dragIndex.value = index;
+    };
+    const dragEnd = () => {
+      dragIndex.value = null;
+      dragTarget.value = '';
+    };
     
 
     // --------------------------
@@ -453,6 +470,7 @@ const rootApp = createApp({
       .reduce((acc, cur) => acc += `<tr><td>${cur.date}</td><td>${cur.version}</td><td>${cur.detail}</td></tr>`, '');
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());
+      sancRegArr.value = json.sancRegArr.map(dic=>new SancRegData(dic));
     })
 
 
@@ -481,22 +499,25 @@ const rootApp = createApp({
       calcedArr,
       allSanLoss,
 
-      dragIndex,
-      dragTarget,
-      dragStart,
-      dragEnter,
-      dragEnter2NameLabel,
-      dragEnd,
-
       // PAGE : get sanc list
       scenarioText,
       sancList,
+      sancRegArr,
+      addNewRegData,
+      deleteLastRegData,
       importSancList,
 
       // WHOLE feature
       saveJson,
       loadJson,
       clear,
+
+      dragIndex,
+      dragTarget,
+      dragStart,
+      dragEnter,
+      dragEnter2NameLabel,
+      dragEnd,
 
       // FUNCTION
       clickNextInput,

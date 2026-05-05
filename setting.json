@@ -1,9 +1,9 @@
 {
   "changeLog": [
     {
-      "version":"1.0",
-      "date":"",
-      "detail":"サイト公開"
+      "version": "1.0",
+      "date": "",
+      "detail": "サイト公開"
     }
   ],
   "setting": {
@@ -21,8 +21,74 @@
       "unitData": true
     },
     "getSancList": {
-      "preChar": "",
-      "nextChar": ""
+      "preChar": "\\(\\/→＜",
+      "nextChar": "\\)点＞"
     }
-  }
+  },
+  "sancRegArr": [
+    {
+      "sample": "SANc1/1d3",
+      "preText": "SANc"
+    },
+    {
+      "sample": "SAN(値)チェック1/1d3",
+      "preText": "SAN値?チェック"
+    },
+    {
+      "sample": "正気度喪失1/1d3",
+      "preText": "正気度喪失"
+    },
+    {
+      "sample": "「正気度/SAN(値)」(を)1/1d3喪失する",
+      "preText": "(?:正気度|SAN値)を?",
+      "nextText": "喪"
+    },
+    {
+      "sample": "1d3(の)「正気度/SAN(値)」(を)回復",
+      "single": true,
+      "isPlus": true,
+      "nextText": "の?(?:正気度|SAN値?)を?回復"
+    },
+    {
+      "sample": "「正気度/SAN(値)」(を)1d3回復",
+      "single": true,
+      "isPlus": true,
+      "preText": "(?:正気度|SAN値?)を?",
+      "nextText": "回復"
+    },
+    {
+      "sample": "「正気度/SAN(値)」回復1d3",
+      "single": true,
+      "isPlus": true,
+      "preText": "(?:正気度|SAN値?)回復"
+    },
+    {
+      "sample": "1d3(の)正気度喪失",
+      "single": true,
+      "nextText": "の?正気度喪失"
+    },
+    {
+      "sample": "1d3(の)「正気度/SAN(値)」減少",
+      "single": true,
+      "nextText": "の?(?:正気度|SAN値?)減少"
+    },
+    {
+      "sample": "SAN(値)減少(-)1d3",
+      "single": true,
+      "preText": "SAN値?減少-?"
+    },
+    {
+      "sample": "1d3(の)「正気度/SAN(値)」を",
+      "single": true,
+      "nextText": "の?(?:正気度|SAN値?)を"
+    },
+    {
+      "sample": "「正気度/SAN(値)」(を-)1d3",
+      "single": true,
+      "preText": "(?:正気度|SAN値?)を?-?"
+    },
+    {
+      "sample": "1/1d3"
+    }
+  ]
 }

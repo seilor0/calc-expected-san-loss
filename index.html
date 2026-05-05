@@ -50,17 +50,19 @@
         <div v-if="setting.process==='home'"></div>
 
         <div v-else-if="setting.process==='get-sanc-list'" style="padding: 2rem 3rem;">
-          <div style="display: flex;justify-content: flex-end;margin-block-end: 1rem;">
+          <div style="display: flex;gap: 1rem;margin-block-end: 1rem;">
+            <button class="light-square-button shadow" command="show-modal" commandfor="edit-sanc-reg-dialog">抽出設定</button>
             <button class="blue-square-button shadow" @click="importSancList">試算ページへコピー</button>
           </div>
           <div style="display: flex;gap: 1.5rem;">
-            <textarea v-model="scenarioText" placeholder="シナリオテキストを貼り付け" style="width: 40ch;height: 10rem;"></textarea>
+            <textarea v-model.lazy.trim="scenarioText" placeholder="シナリオテキストを貼り付け" style="width: 45%;height: 20rem;"></textarea>
             <div class="triangle"></div>
             <div>
               <table class="skill-table">
                 <tbody>
-                  <tr v-for="dic in sancList.flat()">
-                    <td>{{dic.id+1}}</td>
+                  <tr v-for="(dic, index) in sancList.flat()">
+                    <td>{{index+1}}</td>
+                    <td style="max-width: 40ch;text-align: left;">{{dic.base}}</td>
                     <td>
                       {{dic.sancText}}
                     </td>
@@ -190,7 +192,7 @@
                 >
                   <td>
                     <span class="cell-wrap">
-                      <div class="icon icon-close float" click="sancDataArr.splice(index,1)"></div>
+                      <div class="icon icon-close float" @click="sancDataArr.splice(index,1)"></div>
                       <span class="material-symbols-outlined">drag_indicator</span>
                       <input 
                         type="text" 
@@ -329,6 +331,77 @@ Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights res
 PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
     </footer>
 
+    <dialog id="edit-sanc-reg-dialog" closedby="any" style="max-width: 70%;height: 80dvh;">
+      <header>
+        <h2>抽出設定</h2>
+        <button-css-icon icon-name="icon-close" command="close" commandfor="edit-sanc-reg-dialog"></button-css-icon>
+      </header>
+      <section style="padding: 1.5rem 2.5rem;overflow: auto;">
+        <div style="margin-block-end: 1rem;display: flex;gap: 0.75rem;align-items: center;padding-inline: 2px;">
+          <div class="mini-card">
+            <small style="text-align: right;">SANc ○○ 1/1d3：</small>
+            <input type="text" v-model="setting.getSancList.preChar" style="border-radius: 0 4px 4px 0;" />
+          </div>
+          <div class="mini-card">
+            <small style="text-align: right;">SANc 1/1d3 ○○：</small>
+            <input type="text" v-model="setting.getSancList.nextChar" style="border-radius: 0 4px 4px 0;" />
+          </div>
+          <span style="flex-grow: 1;"></span>
+          <button class="icon-frame shadow" @click="addNewRegData">
+            <div class="icon icon-plus"></div>
+          </button>
+          <button class="icon-frame shadow" @click="deleteLastRegData">
+            <div class="icon icon-minus"></div>
+          </button>
+        </div>
+
+        <table class="sanc-table" style="width: stretch;">
+          <thead>
+            <tr>
+              <th>表記例</th>
+              <th colspan="3">正規表現</th>
+              <th>タイプ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(sancRegData, index) in sancRegArr" 
+              draggable="true"
+              :class="{dragging: index===dragIndex && dragTarget==='sancRegArr'}"
+              @dragstart="dragStart(index, 'sancRegArr')"
+              @dragenter="dragEnter(index)"
+              @dragover.prevent
+              @dragend="dragEnd"
+            >
+              <th>
+                <input type="text" v-model="sancRegData.sample" style="width: stretch;" />
+              </th>
+              <td>
+                <input type="text" v-model="sancRegData.preText" />
+              </td>
+              <td class="pad-inline">
+                <button-tag
+                  :is-checked="sancRegData.single" 
+                  @checked-toggle="val=>sancRegData.single=val"
+                  text-checked="1d3" text-not-checked="1/1d3"
+                  style="width: stretch;"
+                ></button-tag>
+              </td>
+              <td>
+                <input type="text" v-model="sancRegData.nextText" />
+              </td>
+              <td class="pad-inline">
+                <button-tag
+                  :is-checked="sancRegData.isPlus" 
+                  @checked-toggle="val=>sancRegData.isPlus=val"
+                  text-checked="回復" text-not-checked="減少"
+                ></button-tag>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </dialog>
+
     <dialog id="edit-unit-dialog" closedby="any" @close="endUnitEdit">
       <header>
         <h2>キャラクターデータ編集</h2>
@@ -388,7 +461,7 @@ PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥ
         <h2>保存データ</h2>
         <button-css-icon icon-name="icon-close" command="close" commandfor="save-json-dialog"></button-css-icon>
       </header>
-      <section style="width: fit-content;padding-inline: 1.5rem;">
+      <section style="width: fit-content;">
         <div class="setting-wrapper">
           現在の設定
           <toggle-button :is-checked="setting.save.setting" @checked-toggle="val=>setting.save.setting=val"></toggle-button>

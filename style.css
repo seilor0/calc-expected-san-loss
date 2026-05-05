@@ -176,7 +176,7 @@ tr .material-symbols-outlined {
     }
   
     section {
-      padding: 0.75rem;
+      padding: 0.75rem 1rem;
     }
 
     footer {
@@ -208,6 +208,7 @@ tr .material-symbols-outlined {
 @layer base {
   .mini-card {
     --main-color: var(--blue);
+    height: stretch;
   }
 
   .toggle-button {
@@ -298,6 +299,7 @@ tr .material-symbols-outlined {
     border-spacing: 2px 0.5rem;
     width: stretch;
     font-size: 0.9em;
+    margin-block-start: -0.5rem;
 
     tbody {background: linear-gradient(150deg,#e7ecef 20%, #cee8ed 100%);}
 
@@ -323,6 +325,19 @@ tr .material-symbols-outlined {
     >input,
     >select
     {flex-grow: 1;}
+  }
+
+  #edit-sanc-reg-dialog table {
+    tbody th {
+      background: linear-gradient(150deg,#e7ecef 40%, #cee8ed 100%);;
+    }
+    .button-tag {
+      display: block;
+      height: stretch;
+      width: max-content;
+      text-align: center;
+      justify-self: center;
+    }
   }
 }
 
