@@ -47,15 +47,15 @@ tr .material-symbols-outlined {
 
   body {
     margin:0;
-    height: stretch;
+    height: 100%;
     font-family: var(--basic-font);
   }
   
   #root {
     background-color: #fafafa;
-    min-height: stretch;
     display: flex;
     flex-direction: column;
+    min-height: stretch;
     width: fit-content;
     min-width: stretch;
   }
@@ -347,10 +347,19 @@ tr .material-symbols-outlined {
     flex: 1;
   }
 
-  .sidemenu {
-    padding: 1rem 1rem;
+  .inpage-process-content {
+    max-height: calc(100dvh - 3rem - 1px);
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  .side-menu {
     border-inline-end: 1px solid darkgray;
     box-shadow: 2px -4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  .side-menu-content {
+    padding: 1rem 1rem;
 
     display: flex;
     align-items: center;
@@ -365,15 +374,6 @@ tr .material-symbols-outlined {
     button.round {
       width: 75%;
       white-space: nowrap;
-    }
-
-    > :last-child {
-      flex-grow: 1;
-      margin-block-end: 2rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      gap: 1rem;
     }
   }
   

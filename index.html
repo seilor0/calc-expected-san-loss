@@ -17,19 +17,17 @@
 <body>
   <div id="root">
     <main>
-      <div class="sidemenu">
-        <h1>SAN減少量<br>計算ツール</h1>
-
-        <button class="round blue" command="show-modal" commandfor="save-json-dialog">セーブ</button>
-        <button class="round blue" @click="clickNextInput">ロード</button>
-        <input type="file" id="jsonInput" accept=".json" style="display: none;" @change="loadJson">
-        <button class="round" @click="clear">クリア</button>
-  
-        <div>
-          <button class="link" command="show-modal" commandfor="modal">使い方</button>
+      <aside class="side-menu">
+        <div class="side-menu-content">
+          <h1>SAN減少量<br>試算ツール</h1>
+          <button class="round blue" command="show-modal" commandfor="save-json-dialog">セーブ</button>
+          <button class="round blue" @click="clickNextInput">ロード</button>
+          <input type="file" id="jsonInput" accept=".json" style="display: none;" @change="loadJson">
+          <button class="round" @click="clear">クリア</button>
+          <button class="link" style="margin-block-start: 2rem;" command="show-modal" commandfor="modal">使い方</button>
           <!-- <a href="https://github.com/seilor0/sortoutAviUtl2ini" target="_blank" rel="noopener noreferrer">GitHub</a> -->
         </div>
-      </div>
+      </aside>
 
       <div class="main-content">
         <div class="tab-ribbon">
@@ -47,8 +45,8 @@
           </label>
         </div>
   
-        <div v-if="setting.process==='home'" class="process-content">
-          <div></div>
+        <div v-if="setting.process==='home'" style="display: flex;flex-direction: column;min-height: calc(100% - 3rem - 1px);">
+          <div style="flex-grow: 1;"></div>
           <footer>
             <div class="footer-content">
               <div>
@@ -103,15 +101,15 @@
           </footer>
         </div>
 
-        <div v-else-if="setting.process==='get-sanc-list'" class="process-content" style="padding: 2rem 3rem;display: flex;flex-direction: column;">
+        <div v-else-if="setting.process==='get-sanc-list'" class="inpage-process-content" style="padding: 2rem 3rem;display: flex;flex-direction: column;">
           <div style="display: flex;gap: 1rem;margin-block-end: 1rem;">
             <button class="light-square-button shadow" command="show-modal" commandfor="edit-sanc-reg-dialog">抽出設定</button>
             <button class="blue-square-button shadow" @click="importSancList">試算ページへコピー</button>
           </div>
-          <div style="display: flex;gap: 1.5rem;">
-            <textarea v-model.lazy.trim="scenarioText" placeholder="シナリオテキストを貼り付け" style="width: 45%;height: 20rem;"></textarea>
+          <div style="display: flex;gap: 1.5rem;flex: 1;overflow-y: auto;">
+            <textarea v-model.lazy.trim="scenarioText" placeholder="シナリオテキストを貼り付け" style="width: 45%;min-height: 20rem;max-height: stretch;"></textarea>
             <div class="triangle"></div>
-            <div>
+            <div style="max-height: stretch;overflow-y: auto;scrollbar-color: hsla(0, 0%, 85%) transparent;">
               <table class="skill-table">
                 <tbody>
                   <tr v-for="(dic, index) in sancList.flat()">
@@ -334,56 +332,7 @@
           </div>
         </div>
       </div>
-
     </main>
-
-    <footer>
-      <div class="footer-content">
-        <div>
-          <h2>CONTACT</h2>
-          <span style="font-size: larger;">セイル</span>
-          <br>
-          Booth: https://seils.booth.pm/
-          <br>
-          X(旧Twitter): @seilor0
-        </div>
-        <div>
-          <h2>CAUTION</h2>
-          <ul>
-            <li>
-              作業環境：Windows11 / Google Chrome
-              <br>
-              上記以外の環境はテストしていないため、不具合が出る可能性があります。
-            </li>
-            <li>
-              当サイトの利用によるいかなるトラブルも作者は責任を負いません。
-              <br>
-              ご利用は自己責任にてお願いいたします。
-            </li>
-            <li>
-              何かあれば左の連絡先までご連絡ください。
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>UPDATE</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>date</th>
-                <th>version</th>
-                <th>detail</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-      <pre style="text-align: center;margin-block-end: unset;white-space: pre-wrap;font-family: unset;">
-当サイトは、「株式会社アークライト」及び「株式会社KADOKAWA」が権利を有する『クトゥルフ神話TRPG』シリーズの二次創作物です。
-Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights reserved. Arranged by Arclight Inc. Call of Cthulhu is a registered trademark of Chaosium Inc.
-PUBLISHED BY KADOKAWA CORPORATION 「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」</pre>
-    </footer>
 
     <dialog id="edit-sanc-reg-dialog" closedby="any" style="max-width: 70%;height: 80dvh;">
       <header>
