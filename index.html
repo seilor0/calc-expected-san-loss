@@ -260,7 +260,7 @@
                   </td>
 
                   <td v-show="setting.options.autoSuccess" class="pad-inline">
-                    <select v-model="sancData.autoSuccess">
+                    <select v-model="sancData.autoSuccess" :class="{disabled: sancData.sancExDic.single}">
                       <option value=""></option>
                       <option value="success">自動成功</option>
                       <option value="fail"   >自動失敗</option>
