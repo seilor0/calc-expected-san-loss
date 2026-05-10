@@ -81,15 +81,15 @@ const rootApp = createApp({
         this.nextText = nextText;
       }
       get regString() {
-        let text = this.preText ? `${this.preText}[${setting.value.getSancList.preChar}]*` : '';
+        let text = this.preText ? `${this.preText}[${sancBeforeChar.value}]*` : '';
         const diceString = '\\d[+D\\d]*';
         text += this.single ? `(?<sancText>${diceString})` : `(?<sancText>${diceString}\\/${diceString})`;
-        if (this.nextText) text += `[${setting.value.getSancList.nextChar}]*${this.nextText}`;
+        if (this.nextText) text += `[${sancAfterChar.value}]*${this.nextText}`;
         return text;
       }
     }
     const setting = ref({
-      process: 'calc-evalue',
+      process: 'home',
       unit: '',
       options: {
         autoSuccess: true,
@@ -102,10 +102,6 @@ const rootApp = createApp({
         sancData: true,
         unit: true,
       },
-      getSancList: {
-        preChar: '',
-        nextChar: '',
-      }
     });
 
 
@@ -323,26 +319,31 @@ const rootApp = createApp({
     // PAGE : get sanc list
     // --------------------------
     const scenarioText = ref('');
-    const sancList = ref([]); // {id, sancText, isPlus, {line, char}}
+    const sancList = ref([]);
 
     const sancRegArr = ref([]);
+    const sancBeforeChar = ref('');
+    const sancAfterChar = ref('');
     function addNewRegData() {sancRegArr.value.push(new SancRegData());}
     function deleteLastRegData() {sancRegArr.value.pop();}
 
-    watch(scenarioText, (newText, oldText) => {
-      scenarioText.value = [
-        [/[　 ]/g, ''],
-        [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
-      ].reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), newText);
-      extractSanc(false, newText, oldText);
-    });
-    watch(sancRegArr, () => extractSanc(true, scenarioText.value), {deep:true});
-    watch([
-      ()=>setting.value.getSancList.preChar, 
-      ()=>setting.value.getSancList.nextChar
-    ], () => extractSanc(true, scenarioText.value));
+    watch(
+      scenarioText, 
+      (newText, oldText) => {
+        scenarioText.value = [
+          [/[　 ]/g, ''],
+          [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
+        ].reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), newText);
+        extractSanc(false, newText, oldText);
+      }
+    );
+    watch(
+      [sancRegArr, sancBeforeChar, sancAfterChar], 
+      () => extractSanc(true, scenarioText.value), {deep:true}
+    );
 
     function extractSanc(regIsChange=false, newText, oldText='') {
+      console.log('extract sanc');
       const matchReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'gi');
       const testReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'i');
       const isPlusReg = new RegExp(sancRegArr.value.filter(reg=>reg.isPlus).map(reg=>reg.regString).join('|'),'i');
@@ -475,7 +476,9 @@ const rootApp = createApp({
       const settingJson = await fetch('./data/setting.json').then(res=>res.json());
       setting.value = structuredClone(settingJson);
       const sancRegJson = await fetch('./data/sanc-reg-exp.json').then(res=>res.json());
-      sancRegArr.value = sancRegJson.map(dic=>new SancRegData(dic));
+      sancRegArr.value = sancRegJson.regExp.map(dic=>new SancRegData(dic));
+      sancBeforeChar.value = sancRegJson.beforeChar;
+      sancAfterChar.value = sancRegJson.afterChar;
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());
     })
@@ -513,6 +516,8 @@ const rootApp = createApp({
       scenarioText,
       sancList,
       sancRegArr,
+      sancBeforeChar,
+      sancAfterChar,
       addNewRegData,
       deleteLastRegData,
       importSancList,

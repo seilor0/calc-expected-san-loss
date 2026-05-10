@@ -343,11 +343,11 @@
         <div style="margin-block-end: 1rem;display: flex;gap: 0.75rem;align-items: center;padding-inline: 2px;">
           <div class="mini-card">
             <small style="text-align: right;">SANc ○○ 1/1d3：</small>
-            <input type="text" v-model="setting.getSancList.preChar" style="border-radius: 0 4px 4px 0;" />
+            <input type="text" v-model="sancBeforeChar" style="border-radius: 0 4px 4px 0;" />
           </div>
           <div class="mini-card">
             <small style="text-align: right;">SANc 1/1d3 ○○：</small>
-            <input type="text" v-model="setting.getSancList.nextChar" style="border-radius: 0 4px 4px 0;" />
+            <input type="text" v-model="sancAfterChar" style="border-radius: 0 4px 4px 0;" />
           </div>
           <span style="flex-grow: 1;"></span>
           <button class="icon-frame shadow" @click="addNewRegData">
