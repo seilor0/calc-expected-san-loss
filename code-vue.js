@@ -153,7 +153,6 @@ const rootApp = createApp({
           [
             [/　/g, ' '],
             [/[！-｝]/g, (s)=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)],
-            [/[「」『』【】〈〉\\[\\]《》≪≫]/g, ''],
           ]
             .reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), dic.skillText)
             .split('\n')
@@ -398,7 +397,14 @@ const rootApp = createApp({
     // --------------------------
     function saveJson () {
       const json = {};
-      if (setting.value.save.setting) json.setting = setting.value;
+      if (setting.value.save.setting) {
+        json.setting = setting.value;
+        json.sancRegData = {
+          beforeChar: sancBeforeChar.value,
+          afterChar: sancAfterChar.value,
+          regExp: sancRegArr.value,
+        }
+      }
       if (setting.value.save.sancData) json.sancData = sancDataArr.value;
       if (setting.value.save.unit) {
         json.unit = Object.fromEntries(
@@ -423,12 +429,20 @@ const rootApp = createApp({
       e.currentTarget.value = null;
       const json = JSON.parse(await file.text());
 
-      if ('setting' in json) setting.value = structuredClone(json.setting);
-      if ('sancData' in json) sancDataArr.value = json.sancData.map(data => new SancData(data));
-      if ('unit' in json)
+      if ('setting' in json) {
+        setting.value = structuredClone(json.setting);
+        sancBeforeChar.value = json.sancRegData.beforeChar;
+        sancAfterChar.value = json.sancRegData.afterChar;
+        sancRegArr.value = json.sancRegData.regExp.map(data => new SancRegData(data));
+      }
+      if ('sancData' in json) {
+        sancDataArr.value = json.sancData.map(data => new SancData(data));
+      }
+      if ('unit' in json) {
         unitDic.value = Object.fromEntries(
           Object.entries(json.unit).map(([key, value]) => [key, new UnitData(value)])
         );
+      }
     }
     function clear () {
       initInsanity.value = '';
