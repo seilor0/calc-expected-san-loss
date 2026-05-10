@@ -1,6 +1,6 @@
 {
-  "beforeChar": "\\(\\/→＜",
-  "afterChar": "\\)点＞",
+  "beforeChar": "(/→＜",
+  "afterChar": ")点＞",
   "regExp":
   [
     {
@@ -17,8 +17,11 @@
     },
     {
       "sample": "「正気度/SAN(値)」(を)1/1d3喪失する",
-      "preText": "(?:正気度|SAN値)を?",
+      "preText": "(?:正気度|SAN値?)を?",
       "nextText": "喪"
+    },
+    {
+      "sample": "1/1d3"
     },
     {
       "sample": "1d3(の)「正気度/SAN(値)」(を)回復",
@@ -63,9 +66,6 @@
       "sample": "「正気度/SAN(値)」(を-)1d3",
       "single": true,
       "preText": "(?:正気度|SAN値?)を?-?"
-    },
-    {
-      "sample": "1/1d3"
     }
   ]
 }

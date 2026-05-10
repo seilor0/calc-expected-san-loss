@@ -81,7 +81,7 @@ const rootApp = createApp({
         this.nextText = nextText;
       }
       get regString() {
-        let text = this.preText ? `${this.preText}[${sancBeforeChar.value}]*` : '';
+        let text = this.preText ? `(?<=${this.preText}[${sancBeforeChar.value}]*)` : '';
         const diceString = '\\d[+D\\d]*';
         text += this.single ? `(?<sancText>${diceString})` : `(?<sancText>${diceString}\\/${diceString})`;
         if (this.nextText) text += `[${sancAfterChar.value}]*${this.nextText}`;
@@ -350,7 +350,6 @@ const rootApp = createApp({
       console.log('extract sanc');
       const matchReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'gi');
       const testReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'i');
-      const isPlusReg = new RegExp(sancRegArr.value.filter(reg=>reg.isPlus).map(reg=>reg.regString).join('|'),'i');
       const newArr = newText.split('\n').filter(Boolean);
 
       if (!oldText || regIsChange) {
@@ -375,7 +374,9 @@ const rootApp = createApp({
         const matchArr = [...string.matchAll(matchReg)];
         const childArr = matchArr.map(match => {
           const {sancText} = match.groups;
-          const isPlus = isPlusReg.test(match[0]);
+          const i = match.slice(1).findIndex(text=>text!==undefined);
+          console.log(sancRegArr.value[i], match);
+          const isPlus = sancRegArr.value[i].isPlus;
           return {sancText:sancText, isPlus:isPlus, enable:true, base:string};
         });
         return childArr;
@@ -465,6 +466,7 @@ const rootApp = createApp({
       const deleteElement = target.splice(dragIndex.value, 1)[0];
       target.splice(index, 0, deleteElement);
       dragIndex.value = index;
+      console.log(target);
     };
     const dragEnter2NameLabel = (index) => {
       if (index === dragIndex.value) return;
