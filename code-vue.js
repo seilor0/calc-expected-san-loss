@@ -371,19 +371,23 @@ const rootApp = createApp({
         });
       }
       function extract(string) {
-        if (!testReg.test(string)) return [];
+        if (!/san|正気度/i.test(string)) return [];
+        if (!testReg.test(string)) return [{sancText:'', isPlus:false, enable:false, base:string}];
         const matchArr = [...string.matchAll(matchReg)];
         const childArr = matchArr.map(match => {
           const {sancText} = match.groups;
           const isPlus = isPlusReg.test(match[0]);
-          return {sancText:sancText, isPlus:isPlus, base:string};
+          return {sancText:sancText, isPlus:isPlus, enable:true, base:string};
         });
         return childArr;
       }
     }
 
     function importSancList() {
-      sancDataArr.value = sancList.value.flat().map(dic => new SancData({sancText:dic.sancText, isPlus:dic.isPlus}));
+      sancDataArr.value = sancList.value
+        .flat()
+        .filter(dic => dic.enable)
+        .map(dic => new SancData({sancText:dic.sancText, isPlus:dic.isPlus}));
       setting.value.process = 'calc-evalue';
     }
     

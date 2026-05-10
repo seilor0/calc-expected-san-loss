@@ -112,12 +112,10 @@
             <div style="max-height: stretch;overflow-y: auto;scrollbar-color: hsla(0, 0%, 85%) transparent;">
               <table class="skill-table">
                 <tbody>
-                  <tr v-for="(dic, index) in sancList.flat()">
+                  <tr v-for="(dic, index) in sancList.flat()" :class="{disabled: !dic.enable}">
                     <td>{{index+1}}</td>
                     <td style="max-width: 40ch;text-align: left;">{{dic.base}}</td>
-                    <td>
-                      {{dic.sancText}}
-                    </td>
+                    <td>{{dic.sancText}}</td>
                     <td>
                       <button-tag 
                         :is-checked="dic.isPlus" 
