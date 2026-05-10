@@ -150,7 +150,12 @@ const rootApp = createApp({
         editUnitArr.value.map(dic => {
           const name = dic.name || `character ${dic.id+1}`;
           const skillArr = [];
-          dic.skillText
+          [
+            [/　/g, ' '],
+            [/[！-｝]/g, (s)=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)],
+            [/[「」『』【】〈〉\\[\\]《》≪≫]/g, ''],
+          ]
+            .reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), dic.skillText)
             .split('\n')
             .filter(Boolean)
             .forEach(row => {
@@ -211,8 +216,8 @@ const rootApp = createApp({
         [
           [/^.*<=\{.*\}.*$/mg, ''], 
           [/　/g, ' '],
-          [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
-          [new RegExp(`[「」『』【】〈〉\\[\\]《》≪≫]`, 'g'), ''],
+          [/[！-｝]/g, (s)=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)],
+          [/[「」『』【】〈〉\\[\\]《》≪≫]/g, ''],
           [/^(?:x|rep|repeat)\d+ */mgi, ''] // 複数回ロール
         ]
           .reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), commandText)
@@ -332,7 +337,7 @@ const rootApp = createApp({
       (newText, oldText) => {
         scenarioText.value = [
           [/[　 ]/g, ''],
-          [/[！-｝]/g, function (s) { return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); }],
+          [/[！-｝]/g, (s)=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)],
         ].reduce((acc, cur) => acc.replaceAll(cur[0], cur[1]), newText);
         extractSanc(false, newText, oldText);
       }
