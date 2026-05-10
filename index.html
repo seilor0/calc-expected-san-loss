@@ -47,9 +47,63 @@
           </label>
         </div>
   
-        <div v-if="setting.process==='home'"></div>
+        <div v-if="setting.process==='home'" class="process-content">
+          <div></div>
+          <footer>
+            <div class="footer-content">
+              <div>
+                <h2>CONTACT</h2>
+                <span style="font-size: larger;">セイル</span><br>
+                Booth: https://seils.booth.pm/<br>
+                X(旧Twitter): @seilor0
+              </div>
+              <div>
+                <h2>CAUTION</h2>
+                <ul>
+                  <li>
+                    作業環境：Windows11 / Google Chrome<br>
+                    上記以外の環境はテストしていないため、不具合が出る可能性があります。
+                  </li>
+                  <li>
+                    当サイトの利用によるいかなるトラブルも作者は責任を負いません。<br>
+                    ご利用は自己責任にてお願いいたします。
+                  </li>
+                  <li>
+                    何かあれば左の連絡先までご連絡ください。
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h2>UPDATE</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>date</th>
+                      <th>version</th>
+                      <th>detail</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="logDic in changeLogArr">
+                      <td>{{logDic.date}}</td>
+                      <td>{{logDic.version}}</td>
+                      <td>{{logDic.detail}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p style="text-align: center;margin-block-end: unset;white-space: pre-wrap;font-family: unset;">
+              本作は、「株式会社アークライト」及び「株式会社KADOKAWA」が権利を有する『クトゥルフ神話TRPG』シリーズの二次創作物です。<br>
+              <br>
+              Call of Cthulhu is copyright ©1981, 2015, 2019 by Chaosium Inc. ;all rights reserved. Arranged by Arclight Inc.<br>
+              Call of Cthulhu is a registered trademark of Chaosium Inc.<br>
+              PUBLISHED BY KADOKAWA CORPORATION　「クトゥルフ神話TRPG」「新クトゥルフ神話TRPG」
+            </p>
+          </footer>
+        </div>
 
-        <div v-else-if="setting.process==='get-sanc-list'" style="padding: 2rem 3rem;">
+        <div v-else-if="setting.process==='get-sanc-list'" class="process-content" style="padding: 2rem 3rem;display: flex;flex-direction: column;">
           <div style="display: flex;gap: 1rem;margin-block-end: 1rem;">
             <button class="light-square-button shadow" command="show-modal" commandfor="edit-sanc-reg-dialog">抽出設定</button>
             <button class="blue-square-button shadow" @click="importSancList">試算ページへコピー</button>

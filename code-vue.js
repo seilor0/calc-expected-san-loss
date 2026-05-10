@@ -110,6 +110,12 @@ const rootApp = createApp({
 
 
     // --------------------------
+    // PAGE : home
+    // --------------------------
+    const changeLogArr = ref([]);
+
+
+    // --------------------------
     // PAGE : calc sanc e-value
     // --------------------------
     const initInsanity = ref('');
@@ -464,19 +470,23 @@ const rootApp = createApp({
 
 
     onMounted(async () => {
-      const json = await fetch('./setting.json').then(res=>res.json());
-      setting.value = json.setting;
-      document.querySelector('footer table tbody').innerHTML = json.changeLog
-      .reduce((acc, cur) => acc += `<tr><td>${cur.date}</td><td>${cur.version}</td><td>${cur.detail}</td></tr>`, '');
+      const changeLogJson = await fetch('./data/change-log.json').then(res=>res.json());
+      changeLogArr.value = structuredClone(changeLogJson);
+      const settingJson = await fetch('./data/setting.json').then(res=>res.json());
+      setting.value = structuredClone(settingJson);
+      const sancRegJson = await fetch('./data/sanc-reg-exp.json').then(res=>res.json());
+      sancRegArr.value = sancRegJson.map(dic=>new SancRegData(dic));
       sancDataArr.value.push(new SancData());
       sancDataArr.value.push(new SancData());
-      sancRegArr.value = json.sancRegArr.map(dic=>new SancRegData(dic));
     })
 
 
 
     return {
       setting,
+
+      // PAGE : home
+      changeLogArr,
 
       // PAGE : calc sanc e-value
       initInsanity,

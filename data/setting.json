@@ -1,0 +1,19 @@
+{
+  "process": "home",
+  "unitName": "",
+  "options": {
+    "autoSuccess": true,
+    "preRoll": true,
+    "altRoll": true,
+    "actLoss": true
+  },
+  "save": {
+    "setting": true,
+    "sancData": true,
+    "unitData": true
+  },
+  "getSancList": {
+    "preChar": "\\(\\/→＜",
+    "nextChar": "\\)点＞"
+  }
+}
