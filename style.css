@@ -523,6 +523,15 @@ tr .material-symbols-outlined {
       border-color: var(--blue);
     }
   }
+  
+  .link {
+    color: var(--blue);
+    background-color: transparent;
+    border: none;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: underline;
+  }
 
   input.init-insanity {
     color: currentColor;
