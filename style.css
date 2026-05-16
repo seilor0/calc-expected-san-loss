@@ -54,10 +54,9 @@ tr .material-symbols-outlined {
   #root {
     background-color: #fafafa;
     display: flex;
-    flex-direction: column;
     min-height: stretch;
-    width: fit-content;
     min-width: stretch;
+    width: fit-content;
   }
 
   main {
