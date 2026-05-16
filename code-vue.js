@@ -350,13 +350,13 @@ const rootApp = createApp({
       console.log('extract sanc');
       const matchReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'gi');
       const testReg = new RegExp(sancRegArr.value.map(reg=>reg.regString).join('|'),'i');
-      const newArr = newText.split('\n').filter(Boolean);
+      const newArr = newText.split('\n').filter(row=>/san|正気度/i.test(row));
 
       if (!oldText || regIsChange) {
         sancList.value = newArr.map(row => extract(row));
 
       } else {
-        const oldArr = oldText.split('\n').filter(Boolean);
+        const oldArr = oldText.split('\n').filter(row=>/san|正気度/i.test(row));
         if (newArr.length < oldArr.length) {
           sancList.value.splice(newArr.length);
         } else if (newArr.length > oldArr.length) {
@@ -369,13 +369,12 @@ const rootApp = createApp({
         });
       }
       function extract(string) {
-        if (!/san|正気度/i.test(string)) return [];
+        // if (!/san|正気度/i.test(string)) return [];
         if (!testReg.test(string)) return [{sancText:'', isPlus:false, enable:false, base:string}];
         const matchArr = [...string.matchAll(matchReg)];
         const childArr = matchArr.map(match => {
           const {sancText} = match.groups;
           const i = match.slice(1).findIndex(text=>text!==undefined);
-          console.log(sancRegArr.value[i], match);
           const isPlus = sancRegArr.value[i].isPlus;
           return {sancText:sancText, isPlus:isPlus, enable:true, base:string};
         });
@@ -490,8 +489,8 @@ const rootApp = createApp({
     // --------------------------
     // TEST
     // --------------------------
-    unitDic.value['test unit 1'] = new UnitData({san:60, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
-    unitDic.value['test unit 2'] = new UnitData({san:0, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
+    // unitDic.value['test unit 1'] = new UnitData({san:60, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
+    // unitDic.value['test unit 2'] = new UnitData({san:0, skill: { '目星':50, '聞き耳':60, '図書館':70, },});
 
 
 
