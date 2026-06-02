@@ -1,14 +1,20 @@
+import BasicDialog from "./components/basic-dialog.js";
 import ButtonCssIcon from "./components/button-css-icon.js";
 import ButtonTag from "./components/button-tag.js";
+import MiniCard from "./components/mini-card.js"
 import ToggleButton from "./components/toggle-button.js";
+
 import { clamp, floatRound, applyAdjustment, clickNextInput } from "../__utility/function.js";
+
 
 const {createApp, ref, computed, watch, onMounted, toRaw} = Vue;
 
 const rootApp = createApp({
   components: {
+    BasicDialog,
     ButtonCssIcon,
     ButtonTag,
+    MiniCard,
     ToggleButton,
   },
 

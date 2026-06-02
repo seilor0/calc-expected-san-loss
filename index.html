@@ -9,37 +9,42 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300..700" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200..400,0,0&icon_names=drag_indicator,edit" />
 
-  <link rel="stylesheet" href="../__utility/style.css" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="./css/_base.css" />
+  <link rel="stylesheet" href="./css/basic-dialog.css" />
+  <link rel="stylesheet" href="./css/css-icon.css" />
+  <link rel="stylesheet" href="./css/mini-card.css" />
+  <link rel="stylesheet" href="./css/toggle-button.css" />
+  <link rel="stylesheet" href="./css/__style.css" />
+
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body>
   <div id="root">
     <main>
-      <aside class="side-menu">
-        <div class="side-menu-content">
+      <aside class="l-side-bar">
+        <div class="l-side-bar__content">
           <h1>SAN減少量<br>試算ツール</h1>
-          <button class="round blue" command="show-modal" commandfor="save-json-dialog">セーブ</button>
-          <button class="round blue" @click="clickNextInput">ロード</button>
+          <button class="round-button invert-el invert" command="show-modal" commandfor="save-json-dialog">セーブ</button>
+          <button class="round-button invert-el invert" @click="clickNextInput">ロード</button>
           <input type="file" id="jsonInput" accept=".json" style="display: none;" @change="loadJson">
-          <button class="round" @click="clear">クリア</button>
+          <button class="round-button invert-el" @click="clear">クリア</button>
           <a href="https://github.com/seilor0/calc-expected-san-loss" target="_blank" rel="noopener noreferrer" style="margin-block-start: 2rem;">GitHub</a>
         </div>
       </aside>
 
-      <div class="main-content">
-        <div class="tab-ribbon">
-          <label>
-            <input type="radio" value="home" v-model="setting.process" />
+      <div class="l-main-content">
+        <div class="l-tab-bar">
+          <label class="l-tab">
+            <input type="radio" value="home" v-model="setting.process" name="process" />
             Home
           </label>
-          <label>
-            <input type="radio" value="get-sanc-list" v-model="setting.process" />
+          <label class="l-tab">
+            <input type="radio" value="get-sanc-list" v-model="setting.process" name="process" />
             SANcを抽出
           </label>
-          <label>
-            <input type="radio" value="calc-evalue" v-model="setting.process" />
+          <label class="l-tab">
+            <input type="radio" value="calc-evalue" v-model="setting.process" name="process" />
             減少量を試算
           </label>
         </div>
@@ -107,7 +112,7 @@
           </footer>
         </div>
 
-        <div v-else-if="setting.process==='get-sanc-list'" class="inpage-process-content" style="padding: 2rem 3rem;display: flex;flex-direction: column;">
+        <div v-else-if="setting.process==='get-sanc-list'" class="l-inpage-process-content" style="padding: 2rem 3rem;display: flex;flex-direction: column;">
           <div style="display: flex;gap: 1rem;margin-block-end: 1rem;">
             <button class="light-square-button shadow" command="show-modal" commandfor="edit-sanc-reg-dialog">抽出設定</button>
             <button class="blue-square-button shadow" @click="importSancList">試算ページへコピー</button>
@@ -123,11 +128,10 @@
                     <td style="max-width: 40ch;text-align: left;">{{dic.base}}</td>
                     <td>{{dic.sancText}}</td>
                     <td>
-                      <button-tag 
-                        :is-checked="dic.isPlus" 
-                        @checked-toggle="val=>dic.isPlus=val" 
-                        text-checked="回復" text-not-checked="減少"
-                      ></button-tag>
+                      <button-tag :is-checked="dic.isPlus" @checked-toggle="val=>dic.isPlus=val">
+                        <template #checked>回復</template>
+                        <template #not-checked>減少</template>
+                      </button-tag>
                     </td>
                   </tr>
                 </tbody>
@@ -140,7 +144,7 @@
 
           <div style="display: flex;flex-direction: column;gap: 1rem;">
 
-            <div class="new-mofism">
+            <div class="new-mofism-card">
               <p class="title">オプション</p>
               <div class="setting-wrapper">
                 <span>自動成功</span>
@@ -154,7 +158,7 @@
               </div>
             </div>
 
-            <div class="new-mofism">
+            <div class="new-mofism-card">
               <span style="font-size: 0.9em;display: flex;align-items: center;justify-content: space-between;">
                 <p class="title">キャラクター</p>
                 <button class="material-symbols-outlined edit-button" command="show-modal" commandfor="edit-unit-dialog" @click="startUnitEdit">edit</button>
@@ -180,15 +184,27 @@
 
           <div>
             <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
-              <div class="mini-card shadow" style="width: 9rem;">
+              <mini-card class="shadow" style="width: 9rem;">
+                <template #title>初期SAN値</template>
+                <template #content>
+                  <input type="number" class="init-insanity" v-model="initInsanity" placeholder="0" />
+                </template>
+              </mini-card>
+              <mini-card class="shadow" style="width: 9rem;">
+                <template #title>総減少量</template>
+                <template #content>
+                  <span :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</span>
+                </template>
+              </mini-card>
+              
+              <!-- <div class="mini-card shadow" style="width: 9rem;">
                 <div>初期SAN値</div>
                 <input type="number" class="init-insanity" v-model="initInsanity" placeholder="0" />
-              </div>
-              
-              <div class="mini-card shadow" style="width: 9rem;">
+              </div> -->
+              <!-- <div class="mini-card shadow" style="width: 9rem;">
                 <div>総減少量</div>
                 <div :class="{'red': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</div>
-              </div>
+              </div> -->
 
               <button class="icon-frame shadow" @click="addNewData">
                 <div class="icon icon-plus"></div>
@@ -257,11 +273,11 @@
                         class="long-input" 
                         style="font-size: unset;" 
                       />
-                      <button-tag 
-                        :is-checked="sancData.isPlus" 
-                        @checked-toggle="val=>sancData.isPlus=val" 
-                        text-checked="回復" text-not-checked="減少"
-                      ></button-tag>
+                      <button-tag :is-checked="sancData.isPlus"
+                        @checked-toggle="val=>sancData.isPlus=val">
+                        <template #checked>回復</template>
+                        <template #not-checked>減少</template>
+                      </button-tag>
                     </span>
                   </td>
 
@@ -269,7 +285,7 @@
                     <select v-model="sancData.autoSuccess" :class="{disabled: sancData.sancExDic.single}">
                       <option value=""></option>
                       <option value="success">自動成功</option>
-                      <option value="fail"   >自動失敗</option>
+                      <option value="fail">自動失敗</option>
                     </select>
                   </td>
 
@@ -286,11 +302,10 @@
                         placeholder="+0" 
                         class="short-input" 
                       />
-                      <button-tag 
-                        :is-checked="sancData.preRoll.isFail" 
-                        @checked-toggle="val=>sancData.preRoll.isFail=val" 
-                        text-checked="失敗" text-not-checked="成功"
-                      ></button-tag>
+                      <button-tag :is-checked="sancData.preRoll.isFail" @checked-toggle="val=>sancData.preRoll.isFail=val">
+                        <template #checked>失敗</template>
+                        <template #not-checked>成功</template>
+                      </button-tag>
                     </span>
                   </td>
                   <td v-show="setting.options.preRoll" class="center pad-inline">
@@ -338,21 +353,26 @@
       </div>
     </main>
 
-    <dialog id="edit-sanc-reg-dialog" closedby="any" style="max-width: 70%;height: 80dvh;">
-      <header>
-        <h2>抽出設定</h2>
-        <button-css-icon icon-name="icon-close" command="close" commandfor="edit-sanc-reg-dialog"></button-css-icon>
-      </header>
-      <section style="padding: 1.5rem 2.5rem;overflow: auto;">
+    <basic-dialog id="edit-sanc-reg-dialog" style="max-width: 70%;height: 80dvh;" section-style="padding: 1.5rem 2.5rem;overflow: auto;">
+      <template #header>抽出設定</template>
+      <template #content>
         <div style="margin-block-end: 1rem;display: flex;gap: 0.75rem;align-items: center;padding-inline: 2px;">
-          <div class="mini-card">
-            <small style="text-align: right;">SANc ○○ 1/1d3：</small>
-            <input type="text" v-model="sancBeforeChar" style="border-radius: 0 4px 4px 0;" />
-          </div>
-          <div class="mini-card">
-            <small style="text-align: right;">SANc 1/1d3 ○○：</small>
-            <input type="text" v-model="sancAfterChar" style="border-radius: 0 4px 4px 0;" />
-          </div>
+          <mini-card>
+            <template #title>
+              <small style="text-align: right;">SANc ○○ 1/1d3：</small>
+            </template>
+            <template #content>
+              <input type="text" v-model="sancBeforeChar" style="border-radius: 0 4px 4px 0;" />
+            </template>
+          </mini-card>
+          <mini-card>
+            <template #title>
+              <small style="text-align: right;">SANc 1/1d3 ○○：</small>
+            </template>
+            <template #content>
+              <input type="text" v-model="sancAfterChar" style="border-radius: 0 4px 4px 0;" />
+            </template>
+          </mini-card>
           <span style="flex-grow: 1;"></span>
           <button class="icon-frame shadow" @click="addNewRegData">
             <div class="icon icon-plus"></div>
@@ -361,7 +381,6 @@
             <div class="icon icon-minus"></div>
           </button>
         </div>
-
         <table class="sanc-table" style="width: stretch;">
           <thead>
             <tr>
@@ -386,109 +405,98 @@
                 <input type="text" v-model="sancRegData.preText" />
               </td>
               <td class="pad-inline">
-                <button-tag
-                  :is-checked="sancRegData.single" 
-                  @checked-toggle="val=>sancRegData.single=val"
-                  text-checked="1d3" text-not-checked="1/1d3"
-                  style="width: stretch;"
-                ></button-tag>
+                <button-tag :is-checked="sancRegData.single" @checked-toggle="val=>sancRegData.single=val" style="width: stretch;">
+                  <template #checked>1d3</template>
+                  <template #not-checked>1/1d3</template>
+                </button-tag>
               </td>
               <td>
                 <input type="text" v-model="sancRegData.nextText" />
               </td>
               <td class="pad-inline">
-                <button-tag
-                  :is-checked="sancRegData.isPlus" 
-                  @checked-toggle="val=>sancRegData.isPlus=val"
-                  text-checked="回復" text-not-checked="減少"
-                ></button-tag>
+                <button-tag :is-checked="sancRegData.isPlus" @checked-toggle="val=>sancRegData.isPlus=val">
+                  <template #checked>回復</template>
+                  <template #not-checked>減少</template>
+                </button-tag>
               </td>
             </tr>
           </tbody>
         </table>
-      </section>
-    </dialog>
+      </template>
+    </basic-dialog>
 
-    <dialog id="edit-unit-dialog" closedby="any" @close="endUnitEdit">
-      <header>
-        <h2>キャラクターデータ編集</h2>
-        <button-css-icon icon-name="icon-close" command="close" commandfor="edit-unit-dialog"></button-css-icon>
-      </header>
-      <section>
-        <div style="display: flex;gap: 2rem;padding: 0.5rem 1rem;">
-          <div style="display: flex;flex-direction: column;gap: 0.5rem;">
-            <div style="display: flex;gap: 0.5rem;padding-block-end: 0.5rem;">
-              <button class="light-square-button shadow" @click="addNewEditUnit">追加</button>  
-              <button class="light-square-button shadow" @click="importCcfolia">ココフォリア駒から</button>
-            </div>
-            <label v-for="(data,index) in editUnitArr" class="square-baloon-tag"
-              :class="{dragging: index===dragIndex && dragTarget==='editUnitArr'}"
-              @dragstart="dragStart(index, 'editUnitArr')"
-              @dragenter="dragEnter2NameLabel(index)"
-              @dragover.prevent
-              @dragend="dragEnd"
-              draggable="true"
-            >
-              <input 
-                type="radio" 
-                name="edit-unit-data" 
-                :value="index" 
-                v-model="editUnitIndex" 
-                style="display: none;" 
-              />
-              {{data.name || `(character ${data.id+1})`}}
-              <div class="icon icon-close float" @click.prevent="deleteEditUnit(index)"></div>
-            </label>
+    <basic-dialog id="edit-unit-dialog" @close="endUnitEdit" section-style="padding: 1.5rem 2rem;display: flex;gap: 2rem;">
+      <template #header>キャラクターデータ編集</template>
+      <template #content>
+        <div style="display: flex;flex-direction: column;gap: 0.5rem;">
+          <div style="display: flex;gap: 0.5rem;padding-block-end: 0.5rem;">
+            <button class="light-square-button shadow" @click="addNewEditUnit">追加</button>  
+            <button class="light-square-button shadow" @click="importCcfolia">ココフォリア駒から</button>
           </div>
+          <label v-for="(data,index) in editUnitArr" class="square-baloon-tag"
+            :class="{dragging: index===dragIndex && dragTarget==='editUnitArr'}"
+            @dragstart="dragStart(index, 'editUnitArr')"
+            @dragenter="dragEnter2NameLabel(index)"
+            @dragover.prevent
+            @dragend="dragEnd"
+            draggable="true"
+          >
+            <input 
+              type="radio" 
+              name="edit-unit-data" 
+              :value="index" 
+              v-model="editUnitIndex" 
+              style="display: none;" 
+            />
+            {{data.name || `(character ${data.id+1})`}}
+            <div class="icon icon-close float" @click.prevent="deleteEditUnit(index)"></div>
+          </label>
+        </div>
+        <div style="display: flex;flex-direction: column;font-size: calc(1em - 1px);">
+          名前
+          <input 
+            type="text" 
+            :placeholder="`(character ${editUnit.id+1 || '--'})`" 
+            v-model="editUnit.name" 
+            style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" 
+          />
+          SAN値
+          <input 
+            type="number" 
+            placeholder="0" 
+            v-model="editUnit.san" 
+            style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" 
+          />
+          技能
+          <textarea v-model="editUnit.skillText" placeholder="目星  50" style="width: 12rem;height: 12rem;font-size: calc(1em + 1px);resize: block;"></textarea>
+        </div>
+      </template>
+    </basic-dialog>
 
-          <div style="display: flex;flex-direction: column;font-size: calc(1em - 1px);">
-            名前
-            <input 
-              type="text" 
-              :placeholder="`(character ${editUnit.id+1 || '--'})`" 
-              v-model="editUnit.name" 
-              style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" 
-            />
-            SAN値
-            <input 
-              type="number" 
-              placeholder="0" 
-              v-model="editUnit.san" 
-              style="font-size: calc(1em + 1px);margin-block-end: 0.5rem;" 
-            />
-            技能
-            <textarea v-model="editUnit.skillText" placeholder="目星  50" style="width: 12rem;height: 12rem;font-size: calc(1em + 1px);resize: block;"></textarea>
+    <basic-dialog id="save-json-dialog">
+      <template #header>保存データ</template>
+      <template #content>
+        <div style="width: fit-content;">
+          <div class="setting-wrapper">
+            現在の設定
+            <toggle-button :is-checked="setting.save.setting" @checked-toggle="val=>setting.save.setting=val"></toggle-button>
+            SANcデータ
+            <toggle-button :is-checked="setting.save.sancData" @checked-toggle="val=>setting.save.sancData=val"></toggle-button>
+            キャラクターデータ
+            <toggle-button :is-checked="setting.save.unit" @checked-toggle="val=>setting.save.unit=val"></toggle-button>
+          </div>
+          <div class="setting-wrapper" :class="{disabled: !setting.save.unit}" style="margin-inline-start: 3ch;margin-block-start: 0.5rem;justify-self: end;">
+            <template v-for="[name,data] in Object.entries(unitDic)">
+              {{name}}
+              <toggle-button :is-checked="data.save" @checked-toggle="val=>data.save=val"></toggle-button>
+            </template>
           </div>
         </div>
-      </section>
-    </dialog>
-
-    <dialog id="save-json-dialog" closedby="any">
-      <header>
-        <h2>保存データ</h2>
-        <button-css-icon icon-name="icon-close" command="close" commandfor="save-json-dialog"></button-css-icon>
-      </header>
-      <section style="width: fit-content;">
-        <div class="setting-wrapper">
-          現在の設定
-          <toggle-button :is-checked="setting.save.setting" @checked-toggle="val=>setting.save.setting=val"></toggle-button>
-          SANcデータ
-          <toggle-button :is-checked="setting.save.sancData" @checked-toggle="val=>setting.save.sancData=val"></toggle-button>
-          キャラクターデータ
-          <toggle-button :is-checked="setting.save.unit" @checked-toggle="val=>setting.save.unit=val"></toggle-button>
-        </div>
-
-        <div class="setting-wrapper" :class="{disabled: !setting.save.unit}" style="margin-inline-start: 3ch;margin-block-start: 0.5rem;justify-self: end;">
-          <template v-for="[name,data] in Object.entries(unitDic)">
-            {{name}}
-            <toggle-button :is-checked="data.save" @checked-toggle="val=>data.save=val"></toggle-button>
-          </template>
-        </div>
-      </section>
-      <footer>
+      </template>
+      <template #footer>
         <button class="blue-square-button" @click="saveJson">データを保存</button>
-      </footer>
-    </dialog>
+      </template>
+    </basic-dialog>
 
   </div>
   <script type="module" src="./code-vue.js"></script>

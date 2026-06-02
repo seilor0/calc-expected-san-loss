@@ -1,0 +1,37 @@
+@layer component {
+  .mini-card {
+    --color: var(--accent);
+    --radius: 5px;
+    --line-width: 1px;
+    
+    border: var(--line-width) solid var(--color);
+    border-radius: var(--radius);
+    --inner-radius: calc(var(--radius) - var(--line-width));
+    
+    display: flex;
+    text-align: center;
+    white-space: nowrap;
+    min-width: fit-content;
+  
+    .mini-card__title,
+    .mini-card__content {
+      padding-block: 0.25em;
+      padding-inline: 0.5em;
+      align-content: center;
+      flex: 1;
+    }
+  
+    .mini-card__title {
+      color: white;
+      background-color: var(--color);
+      border-radius: var(--inner-radius) 0 0 var(--inner-radius);
+      border-inline-end: var(--line-width) solid var(--color);
+    }
+    .mini-card__content {
+      border-radius: 0 var(--inner-radius) var(--inner-radius) 0;
+    }
+  }
+  .mini-card.fit-width {
+    width: fit-content;
+  }
+}
