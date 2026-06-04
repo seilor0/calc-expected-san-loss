@@ -323,15 +323,6 @@ tr .material-symbols-outlined {
     }
     input[type=radio] {display: none;}
   }
-  
-  /* .l-basic-footer__content {
-    width: max-content;
-    padding-block-end: 0.75rem;
-    border-block-end: 1px solid #aaa;
-    display: flex;
-    justify-self: center;
-    gap:3rem;
-  } */
 }
 
 @layer component {
