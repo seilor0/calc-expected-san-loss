@@ -23,6 +23,7 @@
   }
 
   .button-tag {
+    text-align: center;
     font-size: calc(1em - 1px);
     font-weight: 500;
     align-content: center;
