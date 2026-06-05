@@ -23,7 +23,7 @@ tr .material-symbols-outlined {
 .material-symbols-outlined.edit-button {
   font-variation-settings: 'wght' 300;
 
-  color: #1089d3;
+  color: var(--sky-blue);
   background-color: transparent;
   border-radius: 4px;
   border: 1px solid transparent;
@@ -33,11 +33,11 @@ tr .material-symbols-outlined {
   user-select: none;
 
   &:hover {
-    border-color: #1089d3;
+    border-color: var(--sky-blue);
   }
   &:active {
     color: white;
-    background-color: #1089d3;
+    background-color: var(--sky-blue);
   }
 }
 
@@ -47,16 +47,16 @@ tr .material-symbols-outlined {
 /*        || event        */
 /* ---------------------- */
 @layer state {
-  .red {
+  .is-minus {
     color: #ed1212;
     font-weight: 600;
   }
 
-  .dragging {
+  .is-dragging {
     background-color: var(--cool-gray);
   }
 
-  .disabled {
+  .is-disabled {
     pointer-events: none;
     opacity: 0.33;
   }
@@ -123,10 +123,14 @@ tr .material-symbols-outlined {
     height: stretch;
   }
 
+  .mini-card__content:has(input) {
+    padding: 0;
+  }
+
   .toggle-button {
     --radius: 0.5rem;
     --padding: 1px;
-    --color: #1089d3;
+    --color: var(--sky-blue);
   }
 
   .invert-el {
@@ -407,7 +411,8 @@ tr .material-symbols-outlined {
     }
   }
 
-  input.init-insanity {
+  .mini-card__content input[type=text],
+  .mini-card__content input[type=number] {
     color: currentColor;
     background-color: transparent;
     display: block;
@@ -418,6 +423,8 @@ tr .material-symbols-outlined {
     font-size: larger;
     text-align: center;
     border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0;
   }
   .init-insanity::-webkit-outer-spin-button,
   .init-insanity::-webkit-inner-spin-button {
