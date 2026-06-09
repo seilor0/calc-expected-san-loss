@@ -123,7 +123,7 @@ tr .material-symbols-outlined {
     height: stretch;
   }
 
-  .mini-card__content:has(input) {
+  .mini-card__body:has(input) {
     padding: 0;
   }
 
@@ -411,8 +411,8 @@ tr .material-symbols-outlined {
     }
   }
 
-  .mini-card__content input[type=text],
-  .mini-card__content input[type=number] {
+  .mini-card__body input[type=text],
+  .mini-card__body input[type=number] {
     color: currentColor;
     background-color: transparent;
     display: block;
@@ -424,7 +424,7 @@ tr .material-symbols-outlined {
     text-align: center;
     border: none;
     padding: 0.25rem 0.5rem;
-    border-radius: 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0;
+    border-radius: 0 var(--inner-radius) var(--inner-radius) 0;
   }
   .init-insanity::-webkit-outer-spin-button,
   .init-insanity::-webkit-inner-spin-button {

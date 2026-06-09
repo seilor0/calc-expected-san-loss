@@ -185,15 +185,15 @@
 
           <div>
             <div style="display: flex;gap: 0.75rem;margin-block-end: 1rem;">
-              <mini-card class="shadow" style="width: 9rem;">
-                <template #title>初期SAN値</template>
-                <template #content>
+              <mini-card class="shadow" style="width: 9rem;" colored="head">
+                <template #head>初期SAN値</template>
+                <template #body>
                   <input type="number" class="init-insanity" v-model="initInsanity" placeholder="0" />
                 </template>
               </mini-card>
-              <mini-card class="shadow" style="width: 9rem;">
-                <template #title>総減少量</template>
-                <template #content>
+              <mini-card class="shadow" style="width: 9rem;" colored="head">
+                <template #head>総減少量</template>
+                <template #body>
                   <span :class="{'is-minus': initInsanity &lt; allSanLoss}" style="font-size: 1.2rem;">{{floatRound(allSanLoss, 1)}}</span>
                 </template>
               </mini-card>
@@ -347,20 +347,20 @@
       <template #header>抽出設定</template>
       <template #content>
         <div style="margin-block-end: 1rem;display: flex;gap: 0.75rem;align-items: center;padding-inline: 2px;">
-          <mini-card>
-            <template #title>
+          <mini-card colored="head">
+            <template #head>
               <small style="text-align: right;">SANc ○○ 1/1d3：</small>
             </template>
-            <template #content>
-              <input type="text" v-model="sancBeforeChar" style="font-size: medium;" />
+            <template #body>
+              <input type="text" v-model="sancBeforeChar" style="font-size: medium;">
             </template>
           </mini-card>
-          <mini-card>
-            <template #title>
+          <mini-card colored="head">
+            <template #head>
               <small style="text-align: right;">SANc 1/1d3 ○○：</small>
             </template>
-            <template #content>
-              <input type="text" v-model="sancAfterChar" style="font-size: medium;" />
+            <template #body>
+              <input type="text" v-model="sancAfterChar" style="font-size: medium;">
             </template>
           </mini-card>
           <span style="flex-grow: 1;"></span>

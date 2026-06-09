@@ -3,36 +3,34 @@
     --color: var(--accent);
     --radius: 5px;
     --line-width: 1px;
+    --inner-radius: calc(var(--radius) - var(--line-width));
     
     border: var(--line-width) solid var(--color);
     border-radius: var(--radius);
-    --inner-radius: calc(var(--radius) - var(--line-width));
     
-    display: flex;
+    display: inline-flex;
+    min-width: fit-content;
+
     text-align: center;
     white-space: nowrap;
-    min-width: fit-content;
   }
   
-  .mini-card__title,
-  .mini-card__content {
-    padding-block: 0.25em;
-    padding-inline: 0.5em;
+  .mini-card__head,
+  .mini-card__body {
+    padding: 0.25em 0.5em;
     align-content: center;
     flex: 1;
   }
-
-  .mini-card__title {
-    color: white;
-    background-color: var(--color);
-    border-radius: var(--inner-radius) 0 0 var(--inner-radius);
+  .mini-card__head {
     border-inline-end: var(--line-width) solid var(--color);
+    border-radius: var(--inner-radius) 0 0 var(--inner-radius);
   }
-  .mini-card__content {
+  .mini-card__body {
     border-radius: 0 var(--inner-radius) var(--inner-radius) 0;
   }
-  
-  .mini-card.fit-width {
-    width: fit-content;
+  .mini-card__head.colored,
+  .mini-card__body.colored {
+    color: white;
+    background-color: var(--color);
   }
 }
