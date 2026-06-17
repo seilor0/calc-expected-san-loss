@@ -9,10 +9,12 @@
     border-radius: var(--radius);
     
     display: inline-flex;
+    height: fit-content;
     min-width: fit-content;
 
     text-align: center;
     white-space: nowrap;
+    overflow: clip;
   }
   
   .mini-card__head,
@@ -21,12 +23,8 @@
     align-content: center;
     flex: 1;
   }
-  .mini-card__head {
-    border-inline-end: var(--line-width) solid var(--color);
-    border-radius: var(--inner-radius) 0 0 var(--inner-radius);
-  }
   .mini-card__body {
-    border-radius: 0 var(--inner-radius) var(--inner-radius) 0;
+    border-inline-start: var(--line-width) solid var(--color);
   }
   .mini-card__head.colored,
   .mini-card__body.colored {
