@@ -4,7 +4,8 @@ import ButtonTag from "./components/button-tag.js";
 import MiniCard from "./components/mini-card.js"
 import ToggleButton from "./components/toggle-button.js";
 
-import { clamp, floatRound, applyAdjustment, clickNextInput } from "../__utility/function.js";
+import { clamp, floatRound, applyAdjustment } from "./lib/calculation.js";
+import { clickNextInput } from "./lib/event-listener.js";
 
 
 const {createApp, ref, computed, watch, onMounted, toRaw} = Vue;
